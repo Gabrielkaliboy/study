@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<style>
+		.container{
+			padding:200px;
+			background:#f09;
+		}
+		.container:focus-within { 
+		  background-color: #aaa; 
+		}
+	</style>
+	<title></title>
+</head>
+<body>
+	<div class="container" tabindex="0"> 
+	  <label for="text">当元素本身或其后代获得焦点时，:focus-within伪类的元素就会有效。</label> 
+	  <input id="text" type="text" /> 
+	</div>
+</body>
+</html>

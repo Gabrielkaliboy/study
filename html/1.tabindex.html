@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<style>
+		label{
+			display: block;
+			padding:20px;
+		}
+	</style>
+	<title>tabindex</title>
+</head>
+<body>
+	<h3>tabindex 属性规定元素的 tab 键控制次序（当 tab 键用于导航时）</h3>
+	<h4>几乎所有浏览器均 tabindex 属性，除了 Safari。</h4>
+	<h4>tabindex的值从1开始，如果有0，那么最后才到0</h4>
+	<h4>
+		<xmp>
+			以下元素支持 tabindex 属性：<a>, <area>, <button>, <input>, <object>, <select> 以及 <textarea>
+		</xmp>
+	</h4>
+	<label for="" class="lab">3<input type="text" class="inp" tabindex='3'></label>
+	<label for="" class="lab">1<input type="text" class="inp" tabindex='1'></label>
+	<label for="" class="lab">2<input type="text" class="inp" tabindex='2'></label>
+	<label for="" class="lab">0<input type="text" class="inp" tabindex='0'></label>
+</body>
+</html>
