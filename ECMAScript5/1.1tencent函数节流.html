@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>函数节流</title>
+<!--<link href="css/base.css" rel="stylesheet" type="text/css" />-->
+<style type="text/css">
+	body{text-align:center}
+	.hint{font-size:12px;color:#777}
+	#box{border:1px solid #CCC;width:600px}
+	#handle{cursor:move;height:50px;border-bottom:1px solid #CCC}
+	iframe{width:600px;height:400px}
+	#maskLayer{position:absolute;left:0;top:0;z-index:2;width:100%;height:100%;cursor:move;display:none}
+</style>
+</head>
+<body>
+<div id="switchBox">
+	<button value="0" disabled>普通模式</button>
+	<button value="1">函数节流</button>
+	<button value="2">函数节流升级版（50ms必定执行）</button>
+	<button value="3">函数节流升级版（30ms必定执行）</button>
+	<p class="hint"> Hint:没有做浏览器兼容性检查，建议用chrome打开该页面</p>
+</div>
+<div id="box" style="position:absolute;left:200px;top:100px">
+	<div id="handle"></div>
+	<iframe id="frame" src="http://www.qq.com" frameborder=0></iframe>
+</div>
+<div id="maskLayer"></div><!--拖动时的遮罩-->
+<script type="text/javascript" src="1.1throttle_test.js"></script>
+<!--Шeb-->
+</body>
+</html>

@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+	<h3>当窗口发生变化的时候，我们获取当前距离1970.1.1日的毫秒数</h3>
+    <script type="text/javascript">
+        n=0;
+        function resizehandler(){
+            console.log(new Date().getTime());
+            console.log(++n);
+        }
+
+        window.onresize=resizehandler;
+    </script>
+</body>
+</html>
