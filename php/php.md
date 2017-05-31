@@ -475,3 +475,47 @@ var_dump($arr);
 ```
 
 #### 3-14.数据类型之资源类型
+资源就是操作我可见可不见得的文件、网络和数据
+
+#### 3-15.数据类型之查看和判断数据类型
+**默写级别函数要求**
+- 显示类型的函数
+- 得到类型的函数
+- 判断类型的函数
+
+#### 查看数据类型
+- gettype(传入一个变量的值)能够获得变量的类型
+```
+<?php
+$haha=88.8;
+echo(gettype($haha));
+//double
+?>
+```
+- var_dump(传入一个变量)输出变量类型和值
+```php
+<?php
+$haha=88.8;
+echo(var_dump($haha));
+?>
+//float(88.8) 
+```
+#### 判断数据类型
+我们使用is_*系列的函数，来判断某一个东西是不是某一个类型，如果是这个类型则返回真，不是则返回假
+- is_int 是否为整型
+- is_bool是否为布尔型
+- is_float是否是浮点型
+- is_string 是否是字符串
+- is_array 是否为数组
+- is_object是否是对象
+- is_null 是否为空
+- is_resource是否为资源
+- is_salar 是否为标量	
+- is_numeric是否为数值类型
+- is_callable 是否为函数
+
+
+is_types is在前，后面跟类型就可以
+变量：整型int，浮点float，布尔bool，字符串string
+混合类型：数组array，对象object
+特殊类型：空null，资源resource，回调callback
