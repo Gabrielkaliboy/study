@@ -519,3 +519,265 @@ is_types is在前，后面跟类型就可以
 变量：整型int，浮点float，布尔bool，字符串string
 混合类型：数组array，对象object
 特殊类型：空null，资源resource，回调callback
+```php
+<?php
+//is_* 系列函数有个特点，就是如果是这个类型就返回的是真。不是这个数据类型就返回的是假
+//声明类型为假
+$fo = false;
+header("Content-type:text/html;charset=utf-8");
+if(is_bool($fo)){
+ echo '执行真区间';
+}else{
+ echo '执行假区间';
+}
+echo "<br/>";
+
+//检查未声明的变量$p是否为空，为空就执行真区间
+if(is_null($p)){
+ echo '执行真区间';
+}else{
+ echo '执行假区间';
+}
+echo "<br/>";
+
+//字符串类型的数值，看看执行的是真还是假
+$str = '18.8';
+if(is_numeric($str)){
+ echo '执行真区间';
+}else{
+ echo '执行假区间';
+}
+echo "<br/>";
+//把sca的值换成整型、浮点、布尔和字符串试试
+$sca = true;
+//如果为标量，执行真区间
+if(is_scalar($sca)){
+ echo '执行真区间';
+}else{
+ echo '执行假区间';
+}
+echo "<br/>";
+//换成echo,is_int试试，为什么echo执行假区间呢？
+if(is_callable('var_dump')){
+ echo '执行真区间';
+}else{
+ echo '执行假区间';
+}
+echo "<br/>";
+//换成echo,is_int试试，为什么echo执行假区间呢？
+if(is_callable("echo")){
+	echo'执行真区间';
+}else{
+	echo'执行假区间';
+}
+?>
+```
+#### 3-16. 数据类型之自动转换和强制转换
+**默写级别：布尔型的强制转换，强制类型转换的单词**
+
+1. 布尔值的自动类型转换
+下面为布尔值判断时的自动类型转换
+- 整型integer的0为假，其他的整型值全为真
+```php
+<?php
+header("Content-type:text/html;charset=utf-8");
+$integer=1;
+//把$integer的值换为0试试
+if($integer){
+	echo '我是真的';
+}else{
+	echo "我是假的";
+}
+?>
+```
+- 浮点的0.0，布尔值为假，小数点后只要有一个非零的数就为真
+```php
+<?php
+header("Content-type:text/html;charset=utf-8");
+//$double改为0.0试试
+$double=0.1;
+if($double){
+	echo"我是真的";
+}else{
+	echo"我是假的";
+}
+?>
+```
+
+- 空字符串为假，只要里面有一个空格也是真
+```php
+<?php
+header("Content-type:text/html;charset=utf-8");
+//$string改为" "试试,里面有空格
+$string="";
+if($string){
+	echo"我是真的";
+}else{
+	echo"我是假的";
+}
+?
+```
+
+- 字符串的0也将它看为假，其余的为真
+```php
+<?php
+header("Content-type:text/html;charset=utf-8");
+$str="0";
+//把字符串改为其他值试试
+if($str){
+	echo "我是真的";
+}else{
+	echo"我是假的";
+}
+?>
+```
+- 空数组也将它视为假，只要里面有一个值，就为真
+```php
+<?php
+header("Content-type:text/html;charset=utf-8");
+$arr=array();
+//$arr=array(1);试试
+if($arr){
+	echo"我是真的";
+}else{
+	echo"我是假的";
+}
+?>
+```
+- 空也是假
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$bool=null;
+if($bool){
+	echo"我是真的";
+}else{
+	echo"我是假的";
+}
+?>
+```
+
+- 未成功声明的资源也为假
+```php
+<?php
+//下面这段代码会显示警告，可忽略。暂时只需要对着实验知道效果即可：未声成功的资源也为假
+//下面这一块了解意思就行：打开adasfasfasfdsa.txt这个不存在的文件
+header("content-type:text/html;charset=utf-8");
+$res = fopen('adasfasfasfdsa.txt','r');
+if($res){
+    echo '美女美女我爱你';
+}else{
+    echo '凤姐凤姐爱死我，执行假区间咯';
+}
+?>
+```
+
+2. 其他类型的自动类型转换
+```
+<?php
+header("content-type:text/html;charset=utf-8");
+//布尔值变整型参与计算
+$fo=true;
+$result=$fo+10;
+//$result最后的值为11，因为$fo布尔的true变为了1
+var_dump($result);
+echo "<br>";
+echo $result;
+
+//字符串类型
+$str="520我爱你";
+$result=$str+1;
+//结果为521。因为将$str变为了整型的520参与运算
+//将520放在字符串中间和结尾试试
+var_dump($result);
+
+$str1="我爱520你";
+$result1=$str1+1;
+//结果为1。
+var_dump($result1);
+
+$str2="我爱你520";
+$result2=$str2+1;
+//结果为1
+var_dump($result2);
+?>
+```
+**总结**
+布尔型的true参与运算，会变成整型或者浮点的1，布尔型的false参与运算会变成整型或者浮点的0，字符串开始是整型的或者浮点类型的字符，会转变成对应的类型参与运算。
+
+3. 强制类型转换有三种方式
+- intval()转为整型/floatval()转为浮点型/strval()转为字符串 
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$float=1.23;
+$result=intval($float);
+//此时输出的$result为整型的1
+var_dump($result);
+//$haha整型5
+$haha=5;
+$re=floatval($haha);
+var_dump($re);
+//输出的$haha变为浮点型了
+//定义整型的变量
+$heihei=23;
+$bian=strval($heihei);
+var_dump($bian);
+//变为了字符串
+?>
+```
+- 变量前面加上(),里面写上类型，将它装换后赋值给其他变量
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$float1=12.44;
+//把浮点数变为整型
+$result1=(int)$float1;
+var_dump($result1);//int(12)
+echo("<br>");
+//把浮点数变为布尔值
+$result=(bool)$float1;
+var_dump($result);//bool(true)
+echo("<br>");
+	
+//把浮点变数组
+$result3=(array)$float1;
+var_dump($result3);	
+echo("<br>");
+	
+//布尔变整型
+$bool=true;
+$result2=(int)$bool;
+var_dump($result2);//int(1)
+
+//其他的也一样
+?>
+```
+- settype(变量，类型)直接改变变量本身
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+//
+$fo=12.333;
+settype($fo,'int');
+var_dump($fo);//int(12)
+?>
+```
+**强制类型转换的特点**
+1. 空转为整型会为整型的0
+2. 空转为浮点会为浮点的0
+3. 空转为字符串会为空字符串""
+4. 浮点的123.0转为字符串会为字符串123
+5. 浮点的123.2转为字符串会为字符串123.2
+6. 浮点即使小数点再大，他都会被干掉，会舍掉小数点后面的值
+7. 字符串转为整型的时候，如果数值在前面，会把前面的数值拿出来作为整型的转换值
+8. settype(变量，"null"),等价于unset()一个变量
+9. $目标变量=（类型）$操作变量，只会改变目标变量的类型，不会改变原变量的类型，settype是改变原值
+```php
+<?php
+      //小可爱，记得自己做实验，验证上面的9点哟
+    $t=12.9;
+    settype($t,'int');
+    var_dump($t);
+?>
+```
