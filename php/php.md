@@ -856,4 +856,237 @@ define('BIAO',array(1,2,3));
 
 version.php文件
 ```
+<?php
+
+//此处是检查是否是否授权的业务部份代码xxxx
+define('AUTH',true);
+
+//略过模拟代码xxx行
+
+?>
 ```
+user.php
+```
+<?php
+//尝试将include 'version.php'这一行代码注释后再执行看看，对比结果
+include 'version.php';
+
+if(!defined('AUTH')){
+   echo '非法！非法！你尝试跳过授权文件';
+   exit;
+}
+
+
+//模拟后面用户注册和用户登陆的代码xxx行
+echo '用户注册';
+?>
+```
+实验结果可知：version.php必须包含，不然不会显示后面的echo"用户注册"
+
+#### 3-19. 常量和变量之可变变量。
+可变变量--->变量的变量。可变变量其实就是已经声明的变量前，再加上变量符号。
+```php
+<?php
+//定义一个变量叫做$shu,将$shu这个变量的值设为字符串biao
+$shu="biao";
+//定义一个变量$biao,将他的值设置为字符串鼠标
+$biao="鼠标";
+
+//$$shu，就是可变变量：在已声明的变量$shu前面又加了一个变量符号
+echo $$shu;
+//这时候输出是:鼠标
+?>
+```
+上面代码的过程说明：$shu的值为字符串biao。我在$shu前面又加了一个$,可以理解成下面的变形过程：
+$$shu
+${$shu}分成两块来看
+${'biao'}把$shu变成字符串biao
+$biao,而$biao也是一个变量对应的值：鼠标
+
+```php
+<?php
+$shu="biao";
+$biao="wo";
+$wo="test";
+$test="sina";
+$sina="zhongguo";
+$zhongguo="china";
+$china="我爱你";
+//输出test
+echo $$$shu;
+echo"<br>";
+//输出我爱你
+echo $$$$$$$shu;
+?>
+```
+
+#### 3-20. 常量和变量之外部变量。
+**外部变量**
+php的外部变量是php在使用过程中规定好的一些变量。这个变量的规则就是这么规定的，就这样使用。几个例子
+user.html
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<form action="3-20-reg.php" method="get">
+			<input type="text" name="username" />
+			<input type="password" name="pwd" />
+			<input type="submit" value="提交" />
+		</form>
+	</body>
+</html>
+
+```
+我们用get方法将用户名和密码发送给reg.php.
+我们得到我们的第一个外部变量$_GET。这个变量的主要作用就是将得到get传过来的值。我们写一个reg.php,用$_GET来接收值。（PHP 的 $_REQUEST 变量包含了 $_GET, $_POST 以及 $_COOKIE 的内容。）
+reg.php
+```php
+<?php
+//$_GET后面加上中括号，将username作为字符串放在中括号里面，就得到了表单里面的<input type="text" name="username" /> 的值
+$u = $_GET['username'];
+echo '账号:'.$u.'<br />';
+
+//$_GET['pwd'] 得到表单<input type="text" name="username" /> 的值
+$passwd = $_GET['pwd'];
+echo '密码:'.$passwd.'<br />';
+?>
+```
+我们查看此时的地址栏
+`http://localhost/phpStudy/3-20-reg.php?username=ddd&pwd=ddd`
+由于我们使用的get的方法传值，所以地址栏显示了我们的用户名和密码，到时候我们用post的方式就可以了
+
+我们将上面的代码修改一下，全部使用post传值
+user.html
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<form action="3-20-2-reg.php" method="post">
+			<input type="text" name="username" />
+			<input type="password" name="pwd" />
+			<input type="submit" value="提交" />
+		</form>
+	</body>
+</html>
+
+```
+reg.php
+```php
+<?php
+//$_GET后面加上中括号，将username作为字符串放在中括号里面，就得到了表单里面的<input type="text" name="username" /> 的值
+$u = $_POST['username'];
+echo '账号:'.$u.'<br />';
+
+//$_GET['pwd'] 得到表单<input type="text" name="username" /> 的值
+$passwd = $_POST['pwd'];
+echo '密码:'.$passwd.'<br />';
+?>
+```
+
+#### 3-21. 常量和变量之环境变量。
+环境变量我们主要用的$_SERVER和$_ENV，后者逐渐被新版本废弃
+
+**重点**
+知道在哪查看环境变量的名字（key）和值（value），记住并默写几个常用的环境变量。
+查看环境变量
+```php
+<?php
+phpinfo();
+?>
+```
+看下面的图，$_SERVICE[]注意里面的值.
+![](images/1.png)
+比如我们查看当前文件所在的路径
+```
+<?php
+//我在上图左侧找到的一项，在前面加上了一个$(美元符)，就显示出来了当前文件的路径
+echo $_SERVER['SCRIPT_FILENAME'];
+?>
+```
+
+常用环境变量的键名和键值
+| 键名        | 含义   | 
+| --------:   | -----:  | 
+| $_SERVER["REQUEST_METHOD"]  |  请求当前php页面的方法  |
+| $_SERVER["REQUEST_URI"]  |  请求的URI  | 
+| $_SERVER["SERVER_SOFTWARE"]  |  用的哪一种服务器  | 
+| $_SERVER["REMOTE_ADDR"]  |  客户的IP地址  |
+| $_SERVER["SERVER_ADDR"]  |  当前服务器的IP地址  |
+| $_SERVER["SCRIPT_FILENAME"]  |  当前请求文件的路径  |
+| $_SERVER["HTTP_USER_AGENT"]  |  当前访问这个网址的电脑和浏览器情况   |
+| $_SERVER["HTTP_REFERER"]  |  上级来源（用户在那个地址进入的当前网页）  |
+| $_SERVER["REQUEST_TIME"]  |  当前的时间  |
+
+URI和URL都是地址，但是URL带有主机地址部分，而URI不带有主机地址部分。例如：
+http://www.php.cn/abc.php?username=php 这是一个URL（统一资源定位符），而URI是不带有"http："和主机地址的，本利为
+abc.php?username=php
+
+
+#### 3-22. 常量和变量之变量引用。
+
+比较两段代码
+```php
+<?php
+$fo=5;
+$bar=$fo;
+$bar=6;
+echo $bar."<br>";
+echo $fo;
+?>
+```
+注意这里的&符号
+```php
+<?php
+$fo=5;
+//变量赋值的时候，可以理解为，把所在的空间也给了他
+$bar=&$fo;
+$bar=6;
+//$fo也变为了6
+echo $fo."<br>";
+echo $bar
+?>
+```
+
+#### 3-23. 基础语法之算数运算
+| 符号        | 说明   |  举例  |
+| --------   | -----:  | :----:  |
+| +     | 加 |   $x+$y     |
+| -        |   减   |   $x-%y   |
+| *        |    乘    |  $x*%y  |
+| /      |    除    |  $x/%y  |
+| %       |    取模（余数）    |  $x%%y  |
+
+
+#### 3-23. 基础语法之赋值运算
+1. 从上到下依次赋值
+
+```php
+<?php
+
+$x = 5;
+
+$x = true;
+
+$x = '爱你';
+
+$x = 12.888;
+//最后输出的是12.888
+echo $x;
+?>
+```
+
+| 符号        | 举例   |  等价式子  |
+| --------   | -----:  | :----:  |
+| +=     | 加 |   $x+$y     |
+| -        |   减   |   $x-%y   |
+| *        |    乘    |  $x*%y  |
+| /      |    除    |  $x/%y  |
+| %       |    取模（余数）    |  $x%%y  |
