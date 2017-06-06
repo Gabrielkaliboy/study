@@ -1,0 +1,10 @@
+<?php
+//将include代码注释掉看看效果
+//include('3-18-version.php');
+if(!defined('AUTH')){
+	echo"非法！你尝试跳过授权文件！";
+	exit;
+}
+//模拟后面用户注册和用户登录的代码
+echo"用户注册";
+?>
