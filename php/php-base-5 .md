@@ -292,3 +292,361 @@ $fu();
 //把$fu的值改为test字符串，则输出小鸡炖蘑菇
 ?>
 ```
+#### 5.php自定义函数之匿名函数
+匿名函数就是没有函数名的函数
+
+- 变量函数式的匿名函数
+这个貌似在低版本报错
+```php
+<?php
+	$greet=function($name){
+		echo $name.",你好";
+	};
+	$greet('jarry');
+?>
+```
+上面的例子中函数体没有函数名，通过$greet加括号来调用的，这就是匿名函数
+
+- 回调式的匿名函数
+```php
+<?php
+function woziji($one,$two,$func){
+       //我规定：检查$func是否是函数，如果不是函数停止执行本段代码，返回false
+       if(!is_callable($func)){
+               return false;
+       }
+
+       //我把$one、$two相加，再把$one和$two传入$func这个函数中处理一次
+       //$func是一个变量函数，参见变量函数这一章
+       echo $one + $two + $func($one,$two);
+
+}
+
+woziji(20,30,function( $foo , $bar){
+
+               $result = ($foo+$bar)*2;
+
+               return $result;
+
+           }
+);
+?>
+```
+分析：把$func当成有名的函数就可以，这个函数就是
+```php
+function( $foo , $bar){
+
+               $result = ($foo+$bar)*2;
+
+               return $result;
+
+           }
+```
+
+#### 6.php自定义函数之内部函数
+内部函数：是指在函数内部又声明了一个函数。
+注意事项：
+- 内部函数名称，不能是已存在的函数名
+- 假如在函数 a里面定义了一个内部函数，不能定义两次函数a
+```php
+<?php
+function foo()
+{
+   echo '我是函数foo哟，调一下我才会执行定义函数bar的过程<br />';
+ function bar()
+ {
+      echo '在foo函数内部有个函数叫bar函数<br />';
+ }
+
+
+}
+
+//现在还不能调用bar()函数，因为它还不存在
+bar();
+
+foo();
+
+//现在可以调用bar()函数了，因为foo()函数的执行使得bar()函数变为已定义的函数
+
+bar();
+
+//再调一次foo()看看是不是会报错？
+foo();
+
+?>
+```
+说明：
+- foo调用两次会报错
+- 如果不调用foo函数，则无法执行bar函数，因为bar是在函数内部
+
+#### 7.php自定义函数之变量作用域
+知识：
+- 函数定义时，括号里面的接的变量是形式上的参数(形参)，与函数体外的变量没有任何关系，仅仅是在函数体内执行。
+- 函数内声明的变量也与函数外的变量没有关系
+
+实际应用中的情况：
+- 我想把函数体内定义的变量拿到函数体外用
+- 把函数体外定义的变量拿到函数体内用
+
+<table><thead><tr class="firstRow"><th>全局变量名</th><th>功能说明</th></tr></thead><tbody><tr><td>$_COOKIE</td><td>得到会话控制中cookie传值</td></tr><tr><td>$_SESSION</td><td>得到会话控制中session的值</td></tr><tr><td>$_FILES</td><td>得到文件上传的结果</td></tr><tr><td>$_GET</td><td>得到get传值的结果</td></tr><tr><td>$_POST</td><td>得到post传值的结果</td></tr><tr><td>$_REQUEST</td><td>即能得到get的传值结果，也能得到Post传值的结果</td></tr></tbody></table>
+
+外部变量（超全局变量）的特点
+global.html
+```html
+<html>
+   <head>
+       <title>超全局数组实验</title>
+   </head>
+   <body>
+       <!--先用POST来实验，以后你可以改成GET哟 -->
+       <form action="glob.php" method="post">
+           <input type="text" name="hongniu" /><br />
+
+           <input type="submit" value="提交" />
+       </form>
+
+   </body>
+</html>
+```
+glob.php
+```php
+<?php 
+function demo(){ 
+echo $_POST['hongniu']; 
+} 
+demo(); 
+?>
+```
+上面的demo可以看出，$_POST等这一系列的超全局变量(外部变量)，在函数体内部也是可以用的。其实我们所有声明的变量都放到了$GLOBALS这个数组下面
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$hello = 10;
+//输出10
+echo $GLOBALS['hello'].'<br />';
+
+$GLOBALS['hello'] = '我爱你';
+
+echo $hello;
+//输出我爱你
+?>
+```
+再看一个例子
+```php
+<?php
+function test() {
+    $foo = "local variable";
+	//输出的是全局的
+    echo '$foo in global scope: ' . $GLOBALS["foo"] . "\n";
+    echo "<br>";
+	//输出的是函数内部的
+    echo '$foo in current scope: ' . $foo . "\n";
+}
+
+$foo = "Example content";
+test();
+//输出
+//$foo in global scope: Example content 
+//$foo in current scope: local variable
+?>
+```
+可以看出$变量名=$GLOBALS['变量名']，所有的变量都放到了$GLOBALS里面了，而$GLOBALS也是全局的
+
+- eg1$GLOBALS读取外部变量
+```php
+<?php
+
+$one = 10;
+
+function demo(){
+   $two = 100;
+
+   $result = $two + $GLOBALS['one'];
+
+   return $result;
+
+}
+//你会发现结果变成了110
+echo demo();
+
+?>
+```
+
+- eg2通过$GLOBALS在函数内部修改外部变量
+```php
+<?php
+
+$hongniu = '我是一个兵，来自老百姓';
+
+function test(){
+
+   echo '执行了函数test哟<br />';
+   //调用test()函数，将通过$GLOBALS['hongniu'],把$hongniu的值改变掉
+
+   $GLOBALS['hongniu'] = '帮助别人很快乐';
+}
+
+test();
+//我是一个兵，来自老百姓
+echo $hongniu;
+
+?>
+```
+
+- eg3通过$GLOBALS在函数内部创建一个全局变量
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+function hello(){
+
+   $GLOBALS['que'] = '提神喝茶更好哟';
+
+   echo '你调了一下函数hello<br />';
+}
+//如果不调用一下hello,que不会输出
+hello();
+
+echo $que;
+
+?>
+```
+
+**了解级别-声明全局变量**，这种方式用的越来越少
+在global关键字后面跟着一个或者多个变量，就把变量变为了全局变量
+```php
+<?php
+$a = 10;
+$b = 100;
+function test(){
+   global $a , $b;
+   echo $a + $b;
+}
+//输出110
+test();
+?>
+```
+不可以在global后面写$变量=值
+
+#### 8.php自定义函数之参数的引用
+变量的一个例子，$a与$b指向同一个存储位置
+```php
+<?php
+
+$a = 10;
+
+$b = &$a;
+
+$a = 100;
+
+echo $a.'---------'.$b;
+?>
+```
+```php
+<?php
+
+$foo = 100;
+
+//注意：在$n前面加上了&符
+function demo(&$n){
+
+       $n = 10;
+
+       return $n + $n;
+
+}
+
+echo  demo($foo).'<br />';
+//你就记住，&变量以后，二者的存储位置和值都一样，一个变化，另一个也变化
+//你会发生$foo的值变为了10
+echo $foo;
+
+?>
+```
+#### 9.php自定义函数之递归函数
+递归：函数体内调用自己。实际中主要用在文件与文件夹操作的时候。如果这里自己不懂，可以直接用现成的文件处理函数或者文件夹处理函数。
+
+- 代码是从上到下执行的，所有代码没有exit等停止符，函数必须执行完
+- 如果函数从函数A调到函数B，必须把函数B执行完再执行函数A余下的代码
+- 递归函数必要有执行完的结束条件，否则函数就会进入死循环。函数会永远的自我执行下去。
+
+eg
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$n = 2;
+
+function dg( $n ){
+
+   echo $n.'<br />';
+
+   $n = $n - 1;
+
+   if($n > 0){
+       //在函数体内调用了dg自己哟
+       dg($n);
+
+   }else{
+
+       echo '--------------'."<br>";
+   }
+
+   echo '俺是狗蛋，俺还没执行' . $n . '<br />';
+
+}
+dg($n);
+//结果顺序为
+//2
+//1
+//--------------
+//俺是狗蛋，俺还没执行0
+//俺是狗蛋，俺还没执行1
+?>
+```
+注意俺是狗蛋那里，先是0，后是1，因为$n为1的时候跳回去了，没有继续执行后面的echo"俺是狗蛋。。。"，当他执行完了0以后，又继续执行1的时候。
+
+#### 9.php自定义函数之静态变量
+如果我们想知道函数被调用了多少次怎么办，在没有学校静态变量之前，我们没有办法来解决。
+
+静态变量的特点是:声明一个静态变量，再第二次调用函数的时候，静态变量不会再初始化变量，会在原值的基础上读取执行。
+
+```php
+<?php
+function demo()
+{
+   $a = 0;
+   echo $a;
+   $a++;
+}
+demo();
+demo();
+demo();
+demo();
+demo();
+demo();
+demo();
+demo();
+demo();
+demo();
+
+?>
+```
+输出全部都是0
+
+```php
+<?php
+function test()
+{
+   static $a = 0;
+   echo $a;
+   $a++;
+}
+
+for($i = 0 ;$i < 10 ; $i++){
+   test();
+}
+?>
+```
+这个输出0123456789
+由此看出静态变量的特点
+
+#### 10.php使用系统内置函数
