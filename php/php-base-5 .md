@@ -217,3 +217,78 @@ function demo(){
 ```
 
 #### 3.php自定义函数之回调函数
+```php
+<?php
+function woziji($one,$two,$func){
+       //我规定：检查$func是否是函数，如果不是函数停止执行本段代码，返回false
+       //is_callable检测参数是否为合法的可调用结构
+       if(!is_callable($func)){
+               return false;
+       }
+
+       //我把$one、$two相加，再把$one和$two传入$func这个函数中处理一次
+       //$func是一个变量函数，参见变量函数这一章
+       echo $one + $two + $func($one,$two);
+}
+//我们定义几个函数试试
+function plusx2( $foo , $bar){
+
+       $result = ($foo+$bar)*2;
+
+       return $result;
+
+}
+function jian( $x , $y ){
+   $result = $x - $y;
+
+   return $result;
+}
+
+
+//调用一下函数，woziji，向里面传入参数试试
+//输出90
+echo woziji(20,10,'plusx2');
+
+//将plusx2改成jian试试结果
+//输出40
+echo woziji(20,10,'jian');
+
+?>
+```
+处理过程：
+-  1.将20赋值给形参$one,10赋值给了$two，而plusx2或者jian这两个变量函数，赋值给了$func
+-  2.在woziji这个函数中判断plusx2或者jian是否为函数，不是函数就return false 停止执行了
+-  3.显示plusx2或者jian是函数。因此$one = 20, $two =10相加了，相加后，$one和$two又带入到了了$func($one,$two)中。
+-  4.带入至里面后而$func，是可变的，可以为plusx2或者jian。如果为plusx2的话，$one = 20,$two = 10 的这个两个结果又给        了plusx2函数里面的$foo和$bar
+-  5.$foo + $bar 乘以2后将结果返回至woziji这个函数功能体的运算处：$one + $two + $func($one,$two);
+-  6.这样主得到了运算结果
+-  现在我们明白了回调函数：在一个调数里面，再传入一个函数名，将函数名加上()括号。识为变量函数，配合执行。
+
+#### 4.php自定义函数之变量函数
+可变函数，仅仅是可变变量的一个变种，变形表达，**可变函数**，我们也称作**变量函数**
+
+回顾可变变量：
+```php
+<?php 
+$hello = 'world';
+$world = '你好';
+//输出的结果为：你好
+echo $$hello; 
+?>
+```
+变量函数
+```php
+<?php
+function demo(){
+    echo '天王盖地虎';
+}
+function test(){
+    echo '小鸡炖蘑菇';
+}
+$fu = 'demo';
+//把$fu变为了demo,把demo后加上了一个括号，就执行函数了
+$fu();
+//输出天王盖地虎
+//把$fu的值改为test字符串，则输出小鸡炖蘑菇
+?>
+```
