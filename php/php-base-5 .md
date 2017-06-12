@@ -604,7 +604,7 @@ dg($n);
 ```
 注意俺是狗蛋那里，先是0，后是1，因为$n为1的时候跳回去了，没有继续执行后面的echo"俺是狗蛋。。。"，当他执行完了0以后，又继续执行1的时候。
 
-#### 9.php自定义函数之静态变量
+#### 10.php自定义函数之静态变量
 如果我们想知道函数被调用了多少次怎么办，在没有学校静态变量之前，我们没有办法来解决。
 
 静态变量的特点是:声明一个静态变量，再第二次调用函数的时候，静态变量不会再初始化变量，会在原值的基础上读取执行。
@@ -649,4 +649,343 @@ for($i = 0 ;$i < 10 ; $i++){
 这个输出0123456789
 由此看出静态变量的特点
 
-#### 10.php使用系统内置函数
+#### 11.php使用系统内置函数
+##### 11.1使用函数的重点是三块
+- 了解函数的功能，特别是常用函数的功能
+- 了解函数的参数
+- 了解函数的返回值
+##### 11.2举例
+- 直接返回布尔值如copy函数
+	- 功能：拷贝一个文件
+	- 返回值：为布尔型，成功返回true，失败返回false
+	- 参数：两个字符串的值，一个是copy的源文件，一个为目标文件。第三个参数可选，不常用
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+if(copy('abc.txt','bcd.txt')){
+   echo '复制成功';
+}else{
+   echo '复制失败';
+}
+?>
+```
+
+- Mixed表示任何类型的数据，如Array_unshift()
+`int array_unshift(array &$array,mixed $value1[,mixed $...])`
+	- 功能：操作一个数组，像数组之前插入其他类型的数据
+	- 返回值，int类型，可能就是插入成功最后的个数
+	- 参数：第一个参数是&符号，也就是在操作过程中改变了第一个参数的值。引用传参，也就是操作这个数组，向这个数组中传入参数。因此Mixed是指可传入的任意类型。
+	- 第三个参数加了中括号，我们所有遇到中括号的都是指后面的参数可传，可不传。
+	- 第四，最后还看到了三个省略号，代表可以传入任意多个参数
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$queue=array("凤姐","芙蓉");
+array_unshift($queue,"杨幂","姚晨");
+print_r($queue);
+//Array ( [0] => 杨幂 [1] => 姚晨 [2] => 凤姐 [3] => 芙蓉 )
+?>
+```
+
+- 参数中带有&符号的参数，一定要传一个变量作为参数，函数里面改变了他的值。
+
+- 带有[]的参数，表示可选项
+- 带有...表示可以传任意多个参数
+- 带有callback的参数，表示回调函数，需要传递一个函数进来。遇到callback的传函数或者匿名函数进去协助处理，让功能更强大。**没看懂实例**
+	- `bool array_walk ( array &$array , callable $callback [, mixed $userdata = NULL ] )`
+	- 功能：传入一个回调函数，将数组的原来数组操作，并且发生变化
+	- 返回值：bool值，也就是提示成功或者失败
+	- 参数：
+		- 第一个参数是要操作的数组
+		- 第二个参数是callback，代表着可以传入的函数或者匿名函数
+```php
+<?php
+$shuaige = array("a" => "wuyanzhu", "b" => "huangxiaoming", "c" => "ninzetao");
+
+function test_print($item2, $key)
+{
+   echo $key ." ---". strtoupper($item2) . "<br />\n";
+}
+
+echo '<pre>';
+var_dump($shuaige);
+echo '</pre>';
+
+
+array_walk($shuaige, 'test_print');
+
+echo '用自定义函数test_print执行后的效果：';
+
+echo '<pre>';
+var_dump($shuaige);
+echo '</pre>';
+
+?>
+```
+- 函数支持的版本要知道
+
+
+#### 12.文件包含函数
+在PHP里面有，require，require_once,include,include_once
+##### 12.1他们之间的不同
+<table><thead><tr class="firstRow"><th>函数</th><th>包含失败</th><th>特点</th></tr></thead><tbody><tr><td>Inlcude</td><td>返回一条警告</td><td>文件继续向下执行。通常用于动态包含</td></tr><tr><td>Require</td><td>一个致命的错</td><td>代码就不会继续向下执行。通常包含极为重要的文件，整个代码甭想执行</td></tr><tr><td>Include_once</td><td>返回一条警告</td><td>除了原有include的功能以外，它还会做once检测，如果文件曾经已经被被包含过，不再包含</td></tr><tr><td>Require_once</td><td>一个致命的错</td><td>除了原的功能一外，会做一次once检测，防止文件反复被包含</td></tr></tbody></table>
+
+##### 12.2 注意
+- 少用_once的，因为他会消耗更多的资源去做消耗工作
+- 特高级：include文件只需要编译一次，因为每次包含include都会在执行一次对应的代码，如果减少include再执行的时候，需要重新解析的过程
+
+##### 12.3实例
+- include
+functions.php
+```php
+<?php
+//functions.php文件
+
+function demo(){
+   echo 'aaaa';
+}
+
+function test(){
+   echo 'cccdddd';
+}
+
+?>
+```
+functions.php同级目录建user.php
+```php
+<?php
+
+//user.php
+
+include 'functions.php';
+
+//可以直接调用
+demo();
+
+test();
+
+?>
+```
+
+- 对比include与require
+用include包含不存在test.php
+```php
+<?php
+
+//user.php
+
+include 'functions.php';
+include 'test.php';
+
+//可以直接调用
+demo();
+
+test();
+
+?>
+```
+require包含不存在的test.php
+```php
+<?php
+
+//user.php
+
+include 'functions.php';
+require 'test.php';
+
+//可以直接调用
+demo();
+
+test();
+
+?>
+```
+如果test.php文件不存在include 会发出警告继续执行demo()和test()函数。而requre则直接报错，demo()和test()函数无法继续执行。
+我们通过表格知道了:inlcude 和include_once的区别在于，检测是否重复包含。如果重复包含了include_once不会再包含 对应的文件了，而include 则不管这些。有没引入过文件，都再引入一次。
+
+- include与include_once
+```php
+<?php
+
+//user.php
+
+//这儿被包含了两次同样的函数定义文件哟
+include 'functions.php';
+include 'functions.php';
+
+//可以直接调用
+demo();
+
+test();
+
+?>
+```
+改为include_once
+```php
+<?php
+//user.php
+
+//这儿被包含了两次同样的函数定义文件哟
+include_once 'functions.php';
+include_once 'functions.php';
+
+//可以直接调用
+demo();
+
+test();
+
+?>
+```
+include 这次引入functions.php两次的时候报错误,不能重复定义函数。
+而include_once不报错的原因是因为：他检测了functions.php曾经包含过，不再进行包含引入了。
+
+- require与require_once
+	- 包含 的文件必须存在，否则停止执行
+	- 会做重复包含检查哟
+
+#### 13.数学常用函数
+特别多，只需要用的时候查找就好
+<table><thead><tr class="firstRow"><th>函数名</th><th>描述</th><th>实例</th><th>输入</th><th>输出</th></tr></thead><tbody><tr><td>abs()</td><td>求绝对值</td><td style="word-break: break-all;">$abs = abs(-4.2); //4.2</td><td>数字</td><td>绝对值数字</td></tr><tr><td>ceil()</td><td>进一法取整</td><td>echo ceil(9.999); // 10</td><td>浮点数</td><td>进一取整</td></tr><tr><td>floor()</td><td>舍去法取整</td><td>echo floor(9.999); // 9</td><td>浮点数</td><td>直接舍去小数部分</td></tr><tr><td>fmod()</td><td>浮点数取余</td><td>"$x = 5.7;$y = 1.3;$r = fmod($x, $y);// $r equals 0.5, because 4 * &nbsp;1.3 + 0.5 = 5.7 &nbsp; &nbsp;"</td><td>两个浮点数,x&gt;y</td><td>浮点余数</td></tr><tr><td>pow()</td><td>返回数的n次方</td><td>echo pow(-1, 20); // 1</td><td>基础数 n次方</td><td>乘方值</td></tr><tr><td>round()</td><td>浮点数四舍五入</td><td>echo round(1.95583, 2);// 1.96</td><td>一个数值</td><td>保留小数点后多少位,默认为0 舍入后的结果</td></tr><tr><td>sqrt()</td><td>求平方根</td><td>echo sqrt(9); //3</td><td>被开方的数</td><td>平方根</td></tr><tr><td>max()</td><td>求最大值</td><td>"echo max(1, 3, 5, 6, 7); &nbsp;// 7 echo max(array(2, 4, 5)); // 5"</td><td>多个数字或数组</td><td>返回其中的最大值</td></tr><tr><td>min()</td><td>求最小值</td><td>min</td><td>多个数字或数组</td><td>返回其中的最小值</td></tr><tr><td>mt_rand()</td><td>更好的随机数</td><td>echo mt_rand(0,9);//n</td><td>最小/最大,随机数</td><td>随机返回范围内的值</td></tr><tr><td>rand()</td><td>随机数</td><td>echo rand()</td><td>最小/最大,随机数</td><td>随机返回范围内的值</td></tr><tr><td>pi()</td><td>获取圆周率值</td><td>echo pi(); // 3.1415926535898</td><td>无</td><td>获取圆周率</td></tr></tbody></table>
+
+#### 14.php获取时期时间信息函数
+##### 14.1 区分几个概念
+- 时区
+1884年在华盛顿召开国际经度会议时，为了克服时间上的混乱，规定将全球划分为24个时区。在中国采用首都北京所在地东八区的时间为全国统一使用时间。
+
+- 世界时
+不光是天文学家使用格林尼治时间（英文简写:GMT），就是在新闻报刊上也经常出现这个名词。我们知道各地都有各地的地方时间。如果对国际上某一重大事情，用地方时间来记录，就会感到复杂不便．而且将来日子一长容易搞错。因此，天文学家就提出一个大家都能接受且又方便的记录方法，那就是以格林尼治（英国某地区）的地方时间为标准。
+
+- Unix时间戳
+电脑本身不认识时间，我们在电脑里面设置一个时间方便运算。于是我们规定了一种计算方式，unix时间戳。从Unix纪元（1970 年 1月1日零时）开始到一个时间经过的秒数。我们学了几个概念，那我们现在可以开始来学习时间函数了。
+
+##### 14.2例子
+- 设置时区
+	- 设置时区的函数是
+		- data_default_timezone_get()
+		- data_default_timezone_set()
+	- 例子：data_default_timezone_get()取得一个脚本中所有日期时间函数所使用的默认时区
+```php
+<?php
+echo date_default_timezone_get ();
+//Asia/Chongqing
+?>
+```
+	- 例子：bool date_default_timezone_set ( string $timezone_identifier )，用于所有日期时间函数的默认时区
+```php
+<?php
+
+//定义一下时区常量，以后你可以放到配置文件里
+define('TIME_ZONE','Asia/shanghai');
+
+//执行函数
+date_default_timezone_set(TIME_ZONE);
+//上面代码如果被注掉的话，值不一样
+echo date('Y-m-d H:i:s');
+
+?>
+```
+
+##### 14.3time()获取当前的Unix时间戳
+```php
+<?php
+   $time=time();
+   print_r( $time);
+?>
+```
+
+Y 英文是 year，为年份代表年 
+m 英文代表month，为月份代表
+d 英文代表day，为日期 代表
+
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+echo date('Y年m月d日');
+//2017年06月12日
+?>
+```
+
+H:m:s 代表的是：时分秒
+```php
+<?php
+
+//就可以显示出来当前的时间了哟。
+echo date('Y-m-d H:i:s');
+?>
+```
+
+date函数用于将一个时间进行格式化输出，以方便时间的显示或存储。其语法格式如下：
+string date ( string $forrnat [, int $tirnestamp] )
+
+
+<table><thead><tr class="firstRow"><th>字符</th><th>说明</th><th>返回值</th></tr></thead><tbody><tr><td>d</td><td>月份中的第几天，有前导零的2 位数字</td><td>01 到31</td></tr><tr><td>D</td><td>英文星期几，3个字母</td><td>Mon到Sun</td></tr><tr><td>j</td><td>月份中的第几天，没有前导零</td><td>1 到31</td></tr><tr><td>l(字母)</td><td>英文星期几</td><td>Sunday到 Saturday</td></tr><tr><td>N</td><td>1格式数字表示的星期</td><td>1（表示星期一）到7（表示星期天)</td></tr><tr><td>S</td><td>每月天数后面的英文后缀，2个字符</td><td>st，nd，rd或者th。可以和jg一起用</td></tr><tr><td>w</td><td>星期中的第几天，数字表示</td><td>0（表示星期天）到 6（表示星期六）</td></tr><tr><td>z</td><td>一年中的第几天</td><td>0到366</td></tr><tr><td>W</td><td>年份中的第几周，每周从星期一开始</td><td>42（当年的第42周）</td></tr><tr><td>F</td><td>月份，完整的文本格式</td><td>January 到 December</td></tr><tr><td>m</td><td>数字表示月份，有前导零</td><td>01 到 12</td></tr><tr><td>M</td><td>3个字母缩写表示的月份</td><td>Jan 到Dec</td></tr><tr><td>n</td><td>数字表示月份，没有前导零</td><td>1 到 12</td></tr><tr><td>t</td><td>给定月份所应有的天数</td><td>28 到 31</td></tr><tr><td>L</td><td>是否为闰年</td><td>如果是闰年为1，否则为o</td></tr><tr><td>o</td><td>格式年份数字</td><td>例如2007</td></tr><tr><td>Y</td><td>4 位数字完整表示年份</td><td>例如1999或2008</td></tr><tr><td>y</td><td>2 位数字表示的年份</td><td>例如99或08</td></tr><tr><td>a</td><td>小写的上午和下午值</td><td>am或pm</td></tr><tr><td>A</td><td>大写的上午和下午值</td><td>AM或PM</td></tr><tr><td>g</td><td>小时，12小时格式，没有前导零</td><td>1到12</td></tr><tr><td>G</td><td>小时，24小时格式，没有前导零</td><td>0 到 23</td></tr><tr><td>i</td><td>有前导零的分钟数</td><td>00 到 59</td></tr><tr><td>s</td><td>秒数，有前导零</td><td>00到59</td></tr><tr><td>e</td><td>时区标识</td><td><br></td></tr><tr><td>U</td><td>从Unix纪元开始至今的秒数</td><td style="word-break: break-all;">长整型数字</td></tr></tbody></table>
+
+
+##### 14.4getdate()获取当前的系统时间
+getdate用来获取当前系统的时间，或者获得一个时间戳的具体含义。时间戳是一个长整数，表示getdate的语法格式如下所示。
+
+`array getdate ([ int $timestamp = time() ] )`
+函数的返回值是一个根据timestamp得到的包含有时间信息的数组。如果没有参数，则会返回当前的时间。getdate返回的数组，键名包括时间和日期的完整信息。
+<table><thead><tr class="firstRow"><th>键名</th><th>说明</th><th>返回值</th></tr></thead><tbody><tr><td>secnods</td><td>秒</td><td>数字0到 59</td></tr><tr><td>minutes</td><td>分钟</td><td>数字0到59</td></tr><tr><td>hours</td><td>小时</td><td>数字 0到 23</td></tr><tr><td>mday</td><td>月份中第几天</td><td>数字 1到 31</td></tr><tr><td>wday</td><td>星期中第几天</td><td>数字0（表示星期天）到6（表示星期六）</td></tr><tr><td>mon</td><td>月份</td><td>数字 1 到 12</td></tr><tr><td>year</td><td>年</td><td>4 位数字表示的完整年份</td></tr><tr><td>yday</td><td>一年中第几天</td><td>数字0到365</td></tr><tr><td>weekday</td><td>星期几的英文</td><td>Sunday到 Saturday</td></tr><tr><td>month</td><td>月份的英文</td><td>January 到 December</td></tr><tr><td>0</td><td>自从Unix纪元开始的秒数</td><td>长整型数字</td></tr></tbody></table>
+
+以下代码可以返回getdate 数组的详细信息。
+```php
+<?php
+   $mytime=getdate(); 
+   print_r( $mytime);
+   //Array ( [seconds] => 1 [minutes] => 40 [hours] => 14 [mday] => 12 [wday] => 1 [mon] => 6 [year] => 2017 [yday] => 162 [weekday] => Monday [month] => June [0] => 1497278401 )
+?>
+```
+返回是这个
+```php
+Array
+(
+    [seconds] => 1            //秒
+    [minutes] => 10            //分钟
+    [hours] => 17            //小时
+    [mday] => 18            //日
+    [wday] => 0            //星期中的第几天
+    [mon] => 1            //月
+    [year] => 2015            //年
+    [yday] => 17            //年中的第几天
+    [weekday] => Sunday        //星期
+    [month] => January        //月份
+    [0] => 1421597401        //时间戳
+)
+```
+
+理解了getdate函数和返回的数组以后，就很容易取得当前的时间信息了。下面的代码就是用getdate函数取得时间信息，调用返回时间数组的值输出时间信息。
+
+```php
+<?php 
+$mytime = getdate();
+echo "年 :".$mytime['year']."\n";
+echo "月 :".$mytime['mon']."\n";
+echo "日 :".$mytime['mday']."\n";
+echo "时 :".$mytime['hours']."\n";
+echo "分 :".$mytime['minutes']."\n";
+echo "秒 :".$mytime['seconds']."\n";
+echo "一个小时中的第几钟 :".$mytime['minutes']."\n";
+echo "这是一分钟的第几秒 :".$mytime['seconds']."\n";
+echo "星期名称 :".$mytime['weekday']."\n";
+echo "月份名称 :".$mytime['month']."\n";
+echo "时间戳   :".$mytime[0]."\n";
+?>
+```
+
+#### 15.php日期验证函数
+checkdate可以判断一个输出日期是否有效
+例如：验证用户输入的时间是否正确。
+
+语法：`bool checkdate ( int $month , int $day , int $year )`
+下例中，我们就可以用一个代码来进行实验，写出一段真实的例子。试试2011年有没有2月29日。
+如果是有效的时间就返回真，如果不是有效的时间就返回假。
+
+```php
+<?php
+var_dump(checkdate(12, 31, 2018));
+var_dump(checkdate(2, 29, 2011));
+?>
+```
+
+#### 16.php获取本地化时间戳函数
