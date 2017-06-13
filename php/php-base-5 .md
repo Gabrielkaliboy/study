@@ -989,3 +989,492 @@ var_dump(checkdate(2, 29, 2011));
 ```
 
 #### 16.php获取本地化时间戳函数
+eg:找出昨天到今天这个时间段的注册用户
+我们需要做两件事
+- 得到当前时间Unix时间戳，用time()函数
+- 用mktime()指定时间
+
+##### 16.1mktime()函数
+可以对一个日期和时间获得一个本地化时间戳
+- 格式：`int mktime (int $hour [, int $minute [, int $second [, int $month [, int $day [. int$year [, int $.is_dstl.l } ] ] 31 )`
+
+- 函数的参数分别表示：时、分、秒、月、日、年、是否为夏令时。在使用这个函数时，需要注意所列的参数要与函数的参数含义相同。例如，下面的代码实现了用mktime构造一个时间戳的功能。
+
+- 返回2008年8月18日，13时，15分，30秒到1970.1.1.0.0的时间戳
+```php
+<?php
+echo  mktime (13 ,15 , 30, 8,18, 2008) ;
+?>
+```
+
+- 与date函数一起完成时间转换
+```php
+<?php 
+echo date("m-d-Y h:m:s")."\n";
+echo"<br>";
+echo date("m-d-Y h:m:s",mktime(10,15,35,date("m"),date("d"),date("Y")))."\n";
+echo"<br>";
+echo date("m-d-Y h:m:s",mktime(10,15,35,date("m"),date("d")-30,date("Y")))."\n";
+
+?>
+```
+
+- strtotime函数
+格式：`int strtotime ( string $time [, int $now = time() ] )`
+
+功能：将英文文本的日期时间描述解析为Unix时间戳
+
+参数：1.传入一个字符串的时间；2.可选参数为是否传入Unix时间戳，如果不传就是当前的Unix时间戳
+```php
+<?php
+//now为现在的当前时间
+echo strtotime("now")."<br />";
+//2000年9月10日
+echo strtotime("10 September 2000")."<br />";
+//当前时间加一天
+echo strtotime("+1 day")."<br />";
+//当前时间加一周
+echo strtotime("+1 week")."<br />";
+//当前时间加一周2天4小时2秒
+echo strtotime("+1 week 2 days 4 hours 2 seconds")."<br />";
+//下一个星期四
+echo strtotime("next Thursday")."<br />";
+//上一个星期一
+echo strtotime("last Monday")."<br />";
+?>
+```
+
+
+##### 17.程序执行时间检测
+- 思路
+```php
+<?php
+//记录开始时间
+
+
+
+//记录结整时
+
+
+// 开始时间  减去（-）  结束时间  得到程序的运行时间
+
+?>
+```
+可是大家不要忘了，程序的运行速度太快了。快到只有0.00000几秒的一刹那。那这个时候大家要记录一个特函的函数了：
+- `mixed microtime ([ bool $get_as_float ] )`
+microtime()这个函数，能够返回当前 Unix 时间戳和微秒数。
+	- 参数：如果你传入true的话，将会返回一个浮点类型的时间，这样方便参与运算。
+```php
+<?php
+//开始时间
+$time_start = microtime(true);
+
+//循环一万次
+for($i = 0 ; $i < 10000 ; $i++){
+
+
+   //你可以用上，mktime() 生成一个昨天的时间
+
+   //再用strtotime() 生成一个昨天的时间
+
+   //对比两个函数认的效率高
+
+}
+
+//结整时间
+$time_end = microtime(true);
+//相减得到运行时间
+$time = $time_end - $time_start;
+
+echo "这个脚本执行的时间为 $time seconds\n";
+?>
+```
+
+##### 18.php字符串常用函数
+<table>
+    <thead>
+        <tr class="firstRow">
+            <th>函数名</th>
+            <th>描述</th>
+            <th>实例</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="word-break: break-all;">trim()</td>
+            <td>删除字符串两端的空格或其他预定义字符</td>
+            <td style="word-break: break-all;">"$str = "\r\nHello World!\r\n"; echo trim($str);</td>
+        </tr>
+        <tr>
+            <td>rtrim()</td>
+            <td>删除字符串右边的空格或其他预定义字符</td>
+            <td style="word-break: break-all;">"$str = "Hello World!\n\n"; echo rtrim($str);"</td>
+        </tr>
+        <tr>
+            <td>chop()</td>
+            <td>rtrim()的别名</td>
+            <td>同上</td>
+        </tr>
+        <tr>
+            <td>ltrim()</td>
+            <td>删除字符串左边的空格或其他预定义字符</td>
+            <td style="word-break: break-all;">"$str = "\r\nHello World!"; echo ltrim($str);"</td>
+        </tr>
+        <tr>
+            <td>dirname()</td>
+            <td>回路径中的目录部分（我们把它归在了字符串函数里了）</td>
+            <td>echo dirname("c:/testweb/home.php");</td>
+        </tr>
+        <tr>
+            <td>str_pad()</td>
+            <td>把字符串填充为指定的长度</td>
+            <td style="word-break: break-all;">$str = "Hello World"; echo str_pad($str,20,".");</td>
+        </tr>
+        <tr>
+            <td>str_repeat()</td>
+            <td>重复使用指定字符串</td>
+            <td>echo str_repeat(".",13);</td>
+        </tr>
+        <tr>
+            <td>str_split()</td>
+            <td>把字符串分割到数组中</td>
+            <td>print_r(str_split("Hello"));</td>
+        </tr>
+        <tr>
+            <td>strrev()</td>
+            <td>反转字符串</td>
+            <td>echo strrev("Hello World!");</td>
+        </tr>
+        <tr>
+            <td>wordwrap()</td>
+            <td>按照指定长度对字符串进行折行处理</td>
+            <td>"$str = ""An example on a long word is: Supercalifragulistic""; echo wordwrap($str,15);"</td>
+        </tr>
+        <tr>
+            <td>str_shuffle()</td>
+            <td>随机地打乱字符串中所有字符</td>
+            <td>echo str_shuffle("Hello World");</td>
+        </tr>
+        <tr>
+            <td>parse_str()</td>
+            <td>将字符串解析成变量</td>
+            <td style="word-break: break-all;">"parse_str("id=23&amp;name=John%20Adams",$myArray); print_r($myArray);"</td>
+        </tr>
+        <tr>
+            <td>number_format()</td>
+            <td>通过千位分组来格式化数字</td>
+            <td style="word-break: break-all;">"echo number_format("1000000"); echo number_format("1000000",2); echo number_format("1000000",2,"","",""."");"</td>
+        </tr>
+        <tr>
+            <td>strtolower()</td>
+            <td>字符串转为小写</td>
+            <td>echo strtolower("Hello WORLD!");</td>
+        </tr>
+        <tr>
+            <td>strtoupper()</td>
+            <td>字符串转为大写</td>
+            <td>echo strtoupper("Hello WORLD!");</td>
+        </tr>
+        <tr>
+            <td>ucfirst()</td>
+            <td>字符串首字母大写</td>
+            <td>echo ucfirst("hello world");</td>
+        </tr>
+        <tr>
+            <td>ucwords()</td>
+            <td>字符串每个单词首字符转为大写</td>
+            <td>echo ucwords("hello world");</td>
+        </tr>
+        <tr>
+            <td>htmlentities()</td>
+            <td>把字符转为HTML实体</td>
+            <td>$str = ""John &amp; 'Adams'""; echo htmlentities($str, ENT_COMPAT);</td>
+        </tr>
+        <tr>
+            <td>htmlspecialchars()</td>
+            <td>预定义字符转html编码</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>nl2br()</td>
+            <td>\n转义为
+                <br>标签</td>
+            <td>echo nl2br("One line.\nAnother line.");</td>
+        </tr>
+        <tr>
+            <td>strip_tags()</td>
+            <td>剥去 HTML、XML 以及 PHP 的标签</td>
+            <td style="word-break: break-all;">echo strip_tags("Hello <strong>world!</strong>");</td>
+        </tr>
+        <tr>
+            <td>addcslashes()</td>
+            <td>在指定的字符前添加反斜线转义字符串中字符</td>
+            <td style="word-break: break-all;">$str = ""Hello, my name is John Adams." echo $str; echo addcslashes($str,'m');"</td>
+        </tr>
+        <tr>
+            <td>stripcslashes()</td>
+            <td>删除由addcslashes()添加的反斜线</td>
+            <td>echo stripcslashes("Hello, \my na\me is Kai Ji\m.");</td>
+        </tr>
+        <tr>
+            <td>addslashes()</td>
+            <td>指定预定义字符前添加反斜线</td>
+            <td>$str = "Who's John Adams?";echo addslashes($str);</td>
+        </tr>
+        <tr>
+            <td>stripslashes()</td>
+            <td>删除由addslashes()添加的转义字符</td>
+            <td>echo stripslashes("Who\'s John Adams?");</td>
+        </tr>
+        <tr>
+            <td>quotemeta()</td>
+            <td>在字符串中某些预定义的字符前添加反斜线</td>
+            <td style="word-break: break-all;">$str = "Hello world. (can you hear me?)"; echo quotemeta($str);</td>
+        </tr>
+        <tr>
+            <td>chr()</td>
+            <td>从指定的 ASCII 值返回字符</td>
+            <td>echo chr(052);</td>
+        </tr>
+        <tr>
+            <td>ord()</td>
+            <td>返回字符串第一个字符的 ASCII值</td>
+            <td>echo ord("hello");</td>
+        </tr>
+        <tr>
+            <td>strcasecmp()</td>
+            <td>不区分大小写比较两字符串</td>
+            <td>echo strcasecmp("Hello world!","HELLO WORLD!");</td>
+        </tr>
+        <tr>
+            <td>strcmp()</td>
+            <td>区分大小写比较两字符串</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>strncmp()</td>
+            <td>比较字符串前n个字符,区分大小写</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>strncasecmp()</td>
+            <td>比较字符串前n个字符,不区分大小写</td>
+            <td>int strncasecmp ( string $str1 , string $str2 , int $len )</td>
+        </tr>
+        <tr>
+            <td>strnatcmp()</td>
+            <td>自然顺序法比较字符串长度,区分大小写</td>
+            <td>int strnatcmp ( string $str1 , string $str2 )</td>
+        </tr>
+        <tr>
+            <td>strnatcasecmp()</td>
+            <td>自然顺序法比较字符串长度,不区分大小写</td>
+            <td>int strnatcasecmp ( string $str1 , string $str2 )</td>
+        </tr>
+        <tr>
+            <td>chunk_split()</td>
+            <td>将字符串分成小块</td>
+            <td>str chunk_split(str $body[,int $len[,str $end]])</td>
+        </tr>
+        <tr>
+            <td>strtok()</td>
+            <td>切开字符串</td>
+            <td>str strtok(str $str,str $token)</td>
+        </tr>
+        <tr>
+            <td>explode()</td>
+            <td>使用一个字符串为标志分割另一个字符串</td>
+            <td>array explode(str $sep,str $str[,int $limit])</td>
+        </tr>
+        <tr>
+            <td>implode()</td>
+            <td>同join,将数组值用预订字符连接成字符串</td>
+            <td>string implode ( string $glue , array $pieces )</td>
+        </tr>
+        <tr>
+            <td>substr()</td>
+            <td>截取字符串</td>
+            <td>string substr ( string $string , int $start [, int $length ] )</td>
+        </tr>
+        <tr>
+            <td>str_replace()</td>
+            <td>字符串替换操作,区分大小写</td>
+            <td>mix str_replace(mix $search,,mix $replace,mix $subject[,int &amp;$num])</td>
+        </tr>
+        <tr>
+            <td>str_ireplace()</td>
+            <td>字符串替换操作,不区分大小写</td>
+            <td>mix str_ireplace ( mix $search , mix $replace , mix $subject [, int &amp;$count ] )</td>
+        </tr>
+        <tr>
+            <td>substr_count()</td>
+            <td>统计一个字符串,在另一个字符串中出现次数</td>
+            <td>int substr_count ( string $haystack , string $needle [, int $offset = 0 [, int $length ]] )</td>
+        </tr>
+        <tr>
+            <td>substr_replace()</td>
+            <td>替换字符串中某串为另一个字符串</td>
+            <td>mixed substr_replace ( mixed $string , string $replacement , int $start [, int $length ] )</td>
+        </tr>
+        <tr>
+            <td>similar_text()</td>
+            <td>返回两字符串相同字符的数量</td>
+            <td>int similar_text(str $str1,str $str2)</td>
+        </tr>
+        <tr>
+            <td>strchr()</td>
+            <td>返回一个字符串在另一个字符串中开始位置到结束的字符串</td>
+            <td>string strstr ( string $str, string $needle , bool $before_needle )</td>
+        </tr>
+        <tr>
+            <td>strrchr()</td>
+            <td>返回一个字符串在另一个字符串中最后一次出现位置开始到末尾的字符串</td>
+            <td>string strrchr ( string $haystack , mixed $needle )</td>
+        </tr>
+        <tr>
+            <td>stristr()</td>
+            <td>返回一个字符串在另一个字符串中开始位置到结束的字符串，不区分大小写</td>
+            <td>string stristr ( string $haystack , mixed $needle [, bool $before_needle = false ] )</td>
+        </tr>
+        <tr>
+            <td>strtr()</td>
+            <td>转换字符串中的某些字符</td>
+            <td>string strtr ( string $str , string $from , string $to )</td>
+        </tr>
+        <tr>
+            <td>strpos()</td>
+            <td>寻找字符串中某字符最先出现的位置</td>
+            <td>int strpos ( string $haystack , mixed $needle [, int $offset = 0 ] )</td>
+        </tr>
+        <tr>
+            <td>stripos()</td>
+            <td>寻找字符串中某字符最先出现的位置,不区分大小写</td>
+            <td>int stripos ( string $haystack , string $needle [, int $offset ] )</td>
+        </tr>
+        <tr>
+            <td>strrpos()</td>
+            <td>寻找某字符串中某字符最后出现的位置</td>
+            <td>int strrpos ( string $haystack , string $needle [, int $offset = 0 ] )</td>
+        </tr>
+        <tr>
+            <td>strripos()</td>
+            <td>寻找某字符串中某字符最后出现的位置,不区分大小写</td>
+            <td>int strripos ( string $haystack , string $needle [, int $offset ] )</td>
+        </tr>
+        <tr>
+            <td>strspn()</td>
+            <td>返回字符串中首次符合mask的子字符串长度</td>
+            <td>int strspn ( string $str1 , string $str2 [, int $start [, int $length ]] )</td>
+        </tr>
+        <tr>
+            <td>strcspn()</td>
+            <td>返回字符串中不符合mask的字符串的长度</td>
+            <td>int strcspn ( string $str1 , string $str2 [, int $start [, int $length ]] )</td>
+        </tr>
+        <tr>
+            <td>str_word_count()</td>
+            <td>统计字符串含有的单词数</td>
+            <td>mix str_word_count(str $str,[])</td>
+        </tr>
+        <tr>
+            <td>strlen()</td>
+            <td>统计字符串长度</td>
+            <td>int strlen(str $str)</td>
+        </tr>
+        <tr>
+            <td>count_chars()</td>
+            <td>统计字符串中所有字母出现次数(0..255)</td>
+            <td>mixed count_chars ( string $string [, int $mode ] )</td>
+        </tr>
+        <tr>
+            <td>md5()</td>
+            <td>字符串md5编码</td>
+            <td style="word-break: break-all;">$str = "Hello"; echo md5($str)</td>
+        </tr>
+        <tr>
+            <td>iconv</td>
+            <td>
+                <br>
+            </td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>mb_substr</td>
+            <td>获取字符串的部分</td>
+            <td>string mb_substr ( string $str , int $start [, int $length = NULL [, string $encoding = mb_internal_encoding() ]] )</td>
+        </tr>
+        <tr>
+            <td>mb_http_output</td>
+            <td>设置/获取 HTTP 输出字符编码</td>
+            <td style="word-break: break-all;">mixed mb_http_output ([ string $encoding = mb_http_output() ] )</td>
+        </tr>
+        <tr>
+            <td>mb_strlen</td>
+            <td>获取字符串的长度</td>
+            <td>mixed mb_strlen ( string $str [, string $encoding = mb_internal_encoding() ] )</td>
+        </tr>
+        <tr>
+            <td>iconv</td>
+            <td>字符串按要求的字符编码来转换</td>
+            <td>string iconv ( string $in_charset , string $out_charset , string $str )</td>
+        </tr>
+        <tr>
+            <td>iconv_substr</td>
+            <td>截取字符串的部分</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>iconv_get_encoding</td>
+            <td>获取 iconv 扩展的内部配置变量</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>mb_substr_count</td>
+            <td>统计字符串出现的次数</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>mb_check_encoding</td>
+            <td>检查字符串在指定的编码里是否有效</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>mb_strrpos</td>
+            <td>查找字符串在一个字符串中最后出现的位置</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>mb_split</td>
+            <td>使用正则表达式分割多字节字符串</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>parse_url</td>
+            <td>解释URL成为一个数组</td>
+            <td>
+                <br>
+            </td>
+        </tr>
+    </tbody>
+</table>
+中文主要用的是GBK和utf-8两种编码格式。GBK和utf-8是两个不同的编码委员会对于汉字进行的编码的标准。
