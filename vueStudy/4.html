@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <ol>
+            <li v-for="todo in todos">
+                {{todo.text}}
+            </li>
+        </ol>
+    </div>
+</body>
+<script>
+    //在控制台输入app.todos.push({"text":"你大爷"})
+    var app=new Vue({
+        el:"#app",
+        data:{
+            todos:[
+                {"text":"哈哈哈哈哈哈哈"},
+                {"text":"ni hao ma "},
+                {"text":"嘎嘎嘎嘎"},
+            ],
+        },
+    });
+</script>
+</html>
