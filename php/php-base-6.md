@@ -1400,3 +1400,171 @@ mei-----好白
 
 
 #### 7.php常用操作数组函数
+
+##### 7.1array_shift
+弹出数组中的第一个元素
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$mingren=array("邓超","黄晓明","宁泽涛","钟昊良");	
+
+$dc=array_shift($mingren);
+echo $dc."<br>";
+//邓超
+//Array ( [0] => 黄晓明 [1] => 宁泽涛 [2] => 钟昊良 )
+print_r($mingren);
+?>
+```
+结论：
+- 将第一个数组元素弹出，改变了元素组的结果
+- 弹出的值赋值给了$dc
+
+###### 7.2 array_unshift
+向指定数组的开始处压入一个或多个元素，返回的是总个数
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$mingren=array("邓超","黄晓明","宁泽涛","钟昊良");	
+
+$dc=array_unshift($mingren,"李白","程咬金");
+echo $dc."<br>";
+//6
+//Array ( [0] => 李白 [1] => 程咬金 [2] => 邓超 [3] => 黄晓明 [4] => 宁泽涛 [5] => 钟昊良 )
+print_r($mingren);
+?>
+```
+结论：
+- $dc返回的是数组里面的总个数
+- 插入的部分放在了数组的最前面
+
+
+###### 7.3array_pop
+弹出数组末尾的一个元素
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$mingren=array("邓超","黄晓明","宁泽涛","钟昊良");	
+
+$dc=array_pop($mingren);
+echo $dc."<br>";
+//钟昊良
+//Array ( [0] => 邓超 [1] => 黄晓明 [2] => 宁泽涛 )
+print_r($mingren);
+?>
+```
+此时的$dc返回的是被弹出的元素
+
+###### 7.3array_push
+向指定组末尾处压入一个或者多个元素，返回的是总个数
+```php
+<?php
+header("content-type:text/html;charset=utf-8");
+$mingren=array("邓超","黄晓明","宁泽涛","钟昊良");	
+
+$dc=array_push($mingren,"哈哈哈","你好吗");
+echo $dc."<br>";
+//6
+//Array ( [0] => 邓超 [1] => 黄晓明 [2] => 宁泽涛 [3] => 钟昊良 [4] => 哈哈哈 [5] => 你好吗 )
+print_r($mingren);
+?>
+```
+$dc返回的是数组里面元素个数
+
+
+###### 7.4
+- current：读出指针当前位置的值
+- key:读出指针当前位置的键
+- next：指针向下移动
+- prev：指针向上移动
+- reset：指针到开始处
+- end：指针到结束处
+
+```php
+<?php
+$t=array(
+   '我们',
+   'yy'=>'永远',
+   'dbg'=>'需要不断奋进',
+   'djn'=>'才能开创未来'
+   );
+
+
+//读取数组的值
+echo current($t).'<br />';
+//读取数组的键
+echo key($t).'<br />';
+
+//向后移动一下
+next($t);
+
+//再读值和键
+echo current($t).'<br />';
+
+echo key($t).'<br />';
+
+
+//向后移动一下
+next($t);
+echo current($t).'<br />';
+
+echo key($t).'<br />';
+
+
+//向前移动一下
+prev($t);
+echo current($t).'<br />';
+echo key($t).'<br />';
+
+
+//移到末尾
+end($t);
+echo current($t).'<br />';
+echo key($t).'<br />';
+
+//移至开始处
+reset($t);
+echo current($t).'<br />';
+
+echo key($t).'<br />';
+
+
+//销毁数组
+unset($t);
+var_dump($t);
+?>
+```
+
+#### 8.php数组的常用函数（默写）
+
+- array_combine():生成一个数组，用一个数组的值作为键名，另一个数组值作为值
+- range():创建并返回一个包含指定范围的元素数组
+- compact():创建一个由参数所带变量组成的数组
+- array_fill():用给定的值生成数组
+- array_chuck():把一个数组分割为新的数组块
+- array_merge():把两个或多个数组合并为一个数组
+- array_slice():在数组根据条件取出一段值，并返回
+- array_diff():返回两个数组的差集数组
+- array_search():在数组中搜索指定的值，如果成功则返回响应的键名
+- array_splice:把数组中的一部分去掉，并用其他值取代
+- array_sum():数组中所有值得和
+- in_array():检测数组中是否存在某个值
+- array_key_exists():检测给定的键名或者索引是否存在于数组中
+- shuffle():将数组打乱，保留键值
+- count():计算数组中的单元数目或者对象中的属性个数
+- array_flip():返回一个键值翻转后的数组
+- array_keys():返回数组所有的键，组成一个数组
+- array_values():返回数组中所有的值组成的一个元素
+- array_reverse():返回一个元素顺序相反的数组
+- array_count_values:统计数组中所有值出现的次数
+- array_rand():从数组中随机抽取一个或多个元素，注意是键名
+- array_unique():删除重复值，返回剩余数组
+- sort():按升序对给定数组的值排序，不保留键名
+- rsort():对数组逆向排序，不保留键名
+- asort():对数组排序，保留索引关系
+- arsort():对数组逆向排序，保留索引关系
+- ksort():按键名对数组排序
+- krsort():将数组按照键逆向排序
+- natsort():用自然顺序算法对数组中的元素排序
+- natcasesort():自然排序，不区分大小写
+- array_filter():去掉数组中的空元素或者预定元素
+- extract():将键变为变量名，将值变为变量值。
