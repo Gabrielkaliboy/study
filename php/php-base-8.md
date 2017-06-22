@@ -656,3 +656,232 @@ chmod("/somedir/somefile", 0755);
 ?>
 ```
 
+#### 11.php文件路径函数
+我们经常遇到处理文件路径的情况
+1.文件后缀需要取出来2.路径需要取出名字不取目录    3.只需要取出路径名中的目录路径    4.或者把网址中的各个部份进行解析取得独立值
+
+- pathinfo:返回文件的各个组成部分
+- basename:返回文件名
+- dirname:文件目录部分
+- parse_url:网址拆解成部分
+- http_build_query:生成url中query字符串
+- http_build_url:生成一个URL
+
+##### 11.1pathinfo
+```
+array pathinfo ( string $路径)
+功能：传入文件路径返回文件的各个组成部份
+```
+
+例子：
+```php
+<?php
+$path_parts = pathinfo('d:/www/index.inc.php');
+
+echo '文件目录名：'.$path_parts['dirname']."<br />";
+echo '文件全名：'.$path_parts['basename']."<br />";
+echo '文件扩展名：'.$path_parts['extension']."<br />";
+echo '不包含扩展的文件名：'.$path_parts['filename']."<br />"; 
+//文件目录名：d:/www
+//文件全名：index.inc.php
+//文件扩展名：php
+//不包含扩展的文件名：index.inc
+?>
+```
+
+##### 11.2 basename
+```php
+string basename ( string $路径[, string $suffix ])
+功能：传入路径返回文件名
+第一个参数传入路径。
+第二个参数，指定我文件名到了指定字符停止。
+```
+
+例子
+```php
+<?php 
+
+echo "1: ".basename("d:/www/index.d", ".d").PHP_EOL;
+echo "2: ".basename("d:/www/index.php").PHP_EOL;
+echo "3: ".basename("d:/www/passwd").PHP_EOL;
+//1: index 2: index.php 3: passwd
+?>
+```
+
+##### 11.3 dirname
+```
+dirname(string $路径) 
+功能：返回文件路径的文件目录部份
+```
+
+
+##### 11.4parse_url
+mixed parse_url ( string $路径 )
+功能：将网址拆解成各个部份
+```
+<?php
+$url = 'http://username:password@hostname:9090/path?arg=value#anchor';
+
+var_dump(parse_url($url));
+
+?>
+```
+返回
+```
+array(8) { ["scheme"]=> string(4) "http" ["host"]=> string(8) "hostname" ["port"]=> int(9090) ["user"]=> string(8) "username" ["pass"]=> string(8) "password" ["path"]=> string(5) "/path" ["query"]=> string(9) "arg=value" ["fragment"]=> string(6) "anchor" }
+```
+
+##### 11.5 http_budil_query
+```
+string http_build_query ( mixed $需要处理的数据)
+功能：生成url 中的query字符串
+```
+
+```php
+<?php
+//定义一个关联数组
+$data = [
+       'username'=>'php',
+       'area'=>'hubei'
+        ];
+
+//生成query内容
+echo http_build_query($data);
+//username=php&area=hubei
+?>
+```
+
+#### 12.php实现文件留言板
+index.php---展示输入框和留言内容
+```php
+<?Php
+//设置时区
+date_default_timezone_set('PRC');
+//读了内容
+@$string = file_get_contents('message.txt');
+//如果$string 不为空的时候执行，也就是message.txt中有留言数据
+if (!empty($string)) {
+    //每一段留言有一个分格符，但是最后多出了一个&^。因此，我们要将&^删掉
+    $string = rtrim($string, '&^');
+    //以&^切成数组
+    $arr = explode('&^', $string);
+    //将留言内容读取
+    foreach ($arr as $value) {
+        //将用户名和内容分开
+        list($username, $content, $time) = explode('$#', $value);
+        echo '用户名为<font color="gree">' . $username . '</font>内容为<font color="red">' . $content . '</font>时间为' . date('Y-m-d H:i:s', $time);
+        echo '<hr />';
+    }
+}
+?>
+<h1>基于文件的留言本演示</h1>
+<form action="write.php" method="post">
+    用户名：<input type="text" name="username" /><br />
+    留言内容：<textarea  name="content"></textarea><br />
+    <input type="submit" value="提交" />
+</form>
+```
+
+write.php:向message.text写入数据
+```php
+<?Php
+//设置时区
+date_default_timezone_set('PRC');
+//读了内容
+@$string = file_get_contents('message.txt');
+//如果$string 不为空的时候执行，也就是message.txt中有留言数据
+if (!empty($string)) {
+    //每一段留言有一个分格符，但是最后多出了一个&^。因此，我们要将&^删掉
+    $string = rtrim($string, '&^');
+    //以&^切成数组
+    $arr = explode('&^', $string);
+    //将留言内容读取
+    foreach ($arr as $value) {
+        //将用户名和内容分开
+        list($username, $content, $time) = explode('$#', $value);
+        echo '用户名为<font color="gree">' . $username . '</font>内容为<font color="red">' . $content . '</font>时间为' . date('Y-m-d H:i:s', $time);
+        echo '<hr />';
+    }
+}
+?>
+<h1>基于文件的留言本演示</h1>
+<form action="write.php" method="post">
+    用户名：<input type="text" name="username" /><br />
+    留言内容：<textarea  name="content"></textarea><br />
+    <input type="submit" value="提交" />
+</form>
+```
+
+#### 12.php实现修改配置文件
+- index.php---展示修改界面
+- edit.php---修改功能代码
+- config.php---实际的修改部分
+
+
+index.php展示修改页面，将config.php的配置项展示出来，展示到菜单中
+```php
+<?php
+
+    include 'config.php';
+
+?>
+
+
+<form action="edit.php" method="post">
+<input type="text" name="DB_HOST" value="<?php echo DB_HOST;?>" /><br />
+<input type="text" name="DB_USER" value="<?php echo DB_USER;?>" /><br />
+<input type="text" name="DB_PWD" value="<?php echo DB_PWD;?>" /><br />
+<input type="text" name="DB_NAME" value="<?php echo DB_NAME;?>" /><br />
+
+
+<input type="submit" value="修改" />
+
+</form>
+```
+
+edit.php 读取config.php文件，将这个文件视为字符串。我然后使用正则表达示匹配来修改内容。
+```php
+<?php
+
+$string=file_get_contents('config.php');
+
+
+//DB_HOST    localhost
+
+foreach($_POST as $key=>$val){
+
+   //定义正则来查找内容，这里面的key为form表单里面的name
+   $yx="/define\('$key','.*?'\);/";
+
+   //将内容匹配成对应的key和修改的值
+   $re="define('$key','$val');";
+
+   //替换内容
+   $string=preg_replace($yx,$re,$string);
+}
+
+
+//写入成功
+file_put_contents('config.php',$string);
+
+echo '修改成功';
+
+?>
+```
+config.php 实际存储配置文件的部份，存储了真实的config.php文件内容：
+```php
+<?php
+
+define('DB_HOST','localhost');
+
+define('DB_USER','root');
+
+define('DB_PWD','root');
+
+define('DB_NAME','neirong');
+
+
+?>
+```
+
+修改index.php里面的东西，config.php里面会变
