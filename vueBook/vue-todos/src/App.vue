@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <img src="./assets/logo.png">
-    <h1></h1>
+    <h1>{{title}}</h1>
     <h2>Essential Links</h2>
     <ul>
       <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
@@ -16,6 +16,11 @@
       <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
     </ul>
+    <ul>
+      <li>
+        <label v-for="(todo,index) in todos":id="index">{{index+1}}.{{todo.value}}</label>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -24,7 +29,13 @@ export default {
   name: 'app',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      title:"我的第一个vue实例",
+      todos:[
+        { value:"阅读一本关于前端开发的书",done:false},
+        {value:"补充代码规范",done:true},
+        {value:"写心得",done:false},
+      ],
     }
   }
 }
