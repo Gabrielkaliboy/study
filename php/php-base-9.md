@@ -406,3 +406,218 @@ if ($_FILES['file']['error'] > 0) {
 }
 ?>
 ```
+
+#### 6.多文件上传
+
+HTML文件
+```html
+<html> 
+   <head> 
+       <meta charset="utf-8" /> 
+       <title>单文件上传</title> 
+   </head> 
+   <body> 
+       <form action="morefile.php" method="post" enctype="multipart/form-data"> 
+        <input type="file" name="file[]"> 
+        <input type="file" name="file[]"> 
+        <input type="submit" value="上传"> 
+    </form> 
+   </body> 
+</html>
+```
+注意：
+- input type="file" name="file[]" ，与之前相比，file后面加了一个[]
+- 写了一个或者多个type=file，name="file[]",我们使用$_FILES来接受文件信息，打开并查看数组
+
+```php
+<?php 
+var_dump($_FILES); //打印$_FILES查看数组结构 
+?>
+```
+数组结构如下
+```php
+array (size=1)  
+    'file' =>  
+        array (size=5) 
+    'name' =>  
+        array (size=2) 
+        //文件名 
+        0 => string 'psu.jpg' (length=7) 
+        1 => string 'qwe.jpg' (length=7) 
+    //文件mime类型 
+    'type' => array (size=2) 
+            0 => string 'image/jpeg' (length=10) 
+            1 => string 'image/jpeg' (length=10) 
+    //缓存文件 
+    'tmp_name' =>  
+        array (size=2) 
+            0 => string 'E:\wamp\tmp\phpF6D5.tmp' (length=23) 
+            1 => string 'E:\wamp\tmp\phpF6F5.tmp' (length=23) 
+    //文件错误信息 
+    'error' =>  
+        array (size=2) 
+            0 => int 0 
+            1 => int 0 
+    //文件大小 
+    'size' =>  
+        array (size=2) 
+        0 => int 225824     
+        1 => int 151651
+```
+我们可以看到，两个文件被存储在一个数组中，键名和上传单文件是相同。所以，需要我们用for()循环，来分别取出两个文件的需要用到的数据。在$_FILES中同时保存了两个文件的数据，我们需要使用一个简单的循环，来读取单个文件的信息，并将文件移动到我们想要放的位置。
+
+```php
+<?php
+for ($i=0; $i < count($_FILE['file']['name']); $i++) {  
+
+/* 
+用is_uploaded_file()函数判断是上传文件 
+并且没有出现错 
+*/ 
+
+   if(is_uploaded_file($_FILEs['file']['tmp_name'][$i]) && $_FILEs['file']['error'][$i] == 0){     
+       if(move_uploaded_file($_FILEs['file']['tmp_name'][$i],'upload/'.$_FILE['file']['name'][$i])){
+   //用move_uploaded_file()函数移动文件到指定的位置并使用文件原名 
+   echo "上传成功"; 
+
+       }else{ 
+
+           echo '上传失败'; 
+
+       } 
+
+   }else{ 
+
+       echo '上传失败'; 
+
+   } 
+
+} 
+?>
+```
+
+##### 7.php文件上传进度处理
+PHP在5.4之前，总是需要安装额外的扩展才能监控到文件上传进度。而从5.4开始，引入session.upload_progress的新特性，我们只需要在php.ini中开启配置，即可通过session监控文件上传进度。在php.ini中。
+
+我们需要配置，注意查看和修改php.ini文件：
+
+- 配置项 ：说明
+- session.upload_progress.enable:是否启用上传进度报告（默认开启），1位开启，0为关闭
+- session.upload_progress.cleanup:是否在上传完成后及时删除进度数据（默认开启，推荐开启）
+- session.upload_progress.prefix[=upload_progress_]:进度数据将存储在_SESSION[session.upload_progress.prefix._POST[session.upload_progress.name]]
+
+- session.upload_progress.name[=PHP_SESSION_UPLOAD_PROGRESS]:如果_POST[session.upload_progress.name]没有被设置, 则不会报告进度.
+
+- session.upload_progress.freq[=1%]:更新进度的频率(已经处理的字节数), 也支持百分比表示’%’.
+- session.upload_progress.min_freq[=1.0]:更新进度的时间间隔(秒级)
+
+
+开启了配置，我们可以根据session来记录一个完整的文件上传进度。在session中会出现一个如下结果的数组
+
+```php
+$_SESSION["upload_progress_test"] = array(
+    //请求时间
+     "start_time" => 1234567890,
+     // 上传文件总大小
+     "content_length" => 57343257,
+     //已经处理的大小
+     "bytes_processed" => 453489,
+     //当所有上传处理完成后为TRUE，未完成为false
+     "done" => false,
+     "files" => array(
+      0 => array(
+        //表单中上传框的名字
+       "field_name" => "file1",
+       //上传文件的名称
+       "name" => "test1.avi",
+       //缓存文件，上传的文件即保存在这里
+       "tmp_name" => "/tmp/phpxxxxxx",
+       //文件上传的错误信息
+       "error" => 0,
+       //是否上传完成，当这个文件处理完成后会变成TRUE
+       "done" => true, 
+       //这个文件开始处理时间
+       "start_time" => 1234567890,
+       //这个文件已经处理的大小
+       "bytes_processed" => 57343250,     
+      ),
+      1 => array(
+       "field_name" => "file2",
+       "name" => "test2.avi",
+       "tmp_name" => NULL,
+       "error" => 0,
+       "done" => false,                    
+       "start_time" => 1234567899,
+       "bytes_processed" => 54554,
+      ),
+     )
+    );
+```
+
+这个数组详细记录了文件上传的进度，已经处理完的文件状态为true。下面，我们通过一个jQuery的AJAX实例，来学习一下文件上传进度的流程。
+首先，在表单中，需要添加一个type=hidden 的 input 标签，标签 value 为自定义（建议使用有一定意义的值，因为这个值将要在后台用到）
+
+```html
+<form id="upload-form" action="upload.php" method="POST" enctype="multipart/form-data" style="margin:15px 0" target="hidden_iframe">
+    <input type="hidden" name="<?php echo ini_get("session.upload_progress.name"); ?>" value="test" />
+    <p><input type="file" name="file1" /></p>
+    <p><input type="submit" value="Upload" /></p>
+</form>
+<div id="progress" class="progress" style="margin-bottom:15px;display:none;">
+    <div class="label">0%</div>
+</div>
+```
+
+
+这里，添加了一个ID为progress的div，作为展示上传进度的容器。我们通过js的setTimeout()，定时执行ajax来获取文件上传进度，后台文件返回文件上传的进度百分比。
+
+```javascript
+<script src="../jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript">
+function fetch_progress(){
+    $.get('progress.php',{ '<?php echo ini_get("session.upload_progress.name"); ?>' : 'test'}, function(data){
+        var progress = parseInt(data);
+        $('#progress .label').html(progress + '%');
+        if(progress < 100){
+            setTimeout('fetch_progress()', 100);    //当上传进度小于100%时，显示上传百分比
+        }else{
+            $('#progress .label').html('完成!'); //当上传进度等于100%时，显示上传完成
+        }
+    }, 'html');
+}
+$('#upload-form').submit(function(){
+    $('#progress').show();
+    setTimeout('fetch_progress()', 100);//每0.1秒执行一次fetch_progress()，查询文件上传进度
+});
+</script>
+```
+
+上面这段代码，就是通过JQ的ajax，每0.1秒返回一次文件上传进度。并把进度百分比在div 标签中显示。后台代码，需要分为两个部分，upload.php处理上传文件。progress.php 获取session中的上传进度，并返回进度百分比。这里文件上传就不再赘述，详细步骤参见上文，upload.php:
+```php
+<?php
+if(is_uploaded_file($_FILES['file1']['tmp_name'])){                                            //判断是否是上传文件
+   //unlink($_FILES['file1']['tmp_name']);    
+   move_uploaded_file($_FILES['file1']['tmp_name'], "./{$_FILES['file1']['name']}");     //将缓存文件移动到指定位置
+}
+?>
+```
+
+主要关注progress.php：
+```php
+
+//ajax中我们使用的是get方法，变量名称为ini文件中定义的前缀 拼接 传过来的参数
+$key = ini_get("session.upload_progress.prefix") . $_GET[$i];    
+//判断 SESSION 中是否有上传文件的信息
+if (!empty($_SESSION[$key])) {                                        
+   //已上传大小
+   $current = $_SESSION[$key]["bytes_processed"];
+   //文件总大小
+   $total = $_SESSION[$key]["content_length"];
+
+   //向 ajax 返回当前的上传进度百分比。
+   echo $current < $total ? ceil($current / $total * 100) : 100;
+}else{
+   echo 100;                                                       
+}
+?>
+```
