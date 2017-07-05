@@ -966,3 +966,434 @@ ORDER BY field1, [field2...] [ASC [DESC]]
 - 可以设定多个字段来排序
 - 可以使用ASC或者DESC关键字来设置查询结果按照升序还是降序。默认情况下按照升序排列
 - 可以添加where....like语句来设置条件
+
+```mysql
+SELECT * from runoob_tbl ORDER BY submission_date ASC;
+```
+在runoob_tab数据表里面按照提交日期进行排序，ASC升序
+
+##### 使用php来输出排序结果
+```php
+<?php
+$dbhost = '127.0.0.1:3366';  // mysql服务器主机地址
+$dbuser = 'root';            // mysql用户名
+$dbpass = 'root';          // mysql用户名密码
+$conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+if(! $conn )
+{
+  die('连接错误: ' . mysqli_error($conn));
+}
+echo '连接成功<br />';
+
+
+// 设置编码，防止中文乱码
+mysqli_query($conn , "set names utf8");
+ 
+$sql = 'SELECT runoob_id, runoob_title, 
+        runoob_author, submission_date
+        FROM runoob_tbl
+        ORDER BY  submission_date ASC';
+ 
+mysqli_select_db( $conn, 'RUNOOB' );
+$retval = mysqli_query( $conn, $sql );
+if(! $retval )
+{
+    die('无法读取数据: ' . mysqli_error($conn));
+}
+echo '<h2>菜鸟教程 MySQL ORDER BY 测试<h2>';
+echo '<table border="1"><tr><td>教程 ID</td><td>标题</td><td>作者</td><td>提交日期</td></tr>';
+while($row = mysqli_fetch_assoc($retval))
+{
+    echo "<tr><td> {$row['runoob_id']}</td> ".
+         "<td>{$row['runoob_title']} </td> ".
+         "<td>{$row['runoob_author']} </td> ".
+         "<td>{$row['submission_date']} </td> ".
+         "</tr>";
+}
+echo '</table>';
+mysqli_close($conn);
+?>
+```
+
+#### 17.mysql分组
+
+group BY语句，根据一个或多个列对结果集进行分组
+语法：
+```mysql
+SELECT column_name, function(column_name)
+FROM table_name
+WHERE column_name operator value
+GROUP BY column_name
+```
+
+##### 直接使用SQL语句
+
+新建一个employee_tbl表
+```
+CREATE TABLE `employee_tbl` (
+  `id` int(11) NOT NULL,
+  `name` char(10) NOT NULL DEFAULT '',
+  `date` datetime NOT NULL,
+  `singin` tinyint(4) NOT NULL DEFAULT '0' COMMENT '登录次数',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;runoob
+```
+
+然后插入数据
+```mysql
+INSERT INTO `employee_tbl` VALUES ('1', '小明', '2016-04-22 15:25:33', '1'), ('2', '小王', '2016-04-20 15:25:47', '3'), ('3', '小丽', '2016-04-19 15:26:02', '2'), ('4', '小王', '2016-04-07 15:26:14', '4'), ('5', '小明', '2016-04-11 15:26:40', '4'), ('6', '小明', '2016-04-04 15:26:54', '2');
+```
+
+导入成功以后查询一下
+```mysql
+SELECT * FROM employee_tbl;
+```
+使用 GROUP BY 语句 将数据表按名字进行分组，并统计每个人有多少条记录
+```mysql
+SELECT name, COUNT(*) FROM   employee_tbl GROUP BY name;
+```
+
+##### 使用 WITH ROLLUP
+WITH ROLLUP 可以实现在分组统计数据基础上再进行相同的统计（SUM,AVG,COUNT…）。
+例如我们将以上的数据表按名字进行分组，再统计每个人登录的次数：
+```mysql
+SELECT name, SUM(singin) as singin_count FROM  employee_tbl GROUP BY name WITH ROLLUP;
+```
+![](MYSQLStudy-1/6.png)
+
+其中记录 NULL 表示所有人的登录次数
+
+我们可以使用 coalesce 来设置一个可以取代 NUll 的名称，coalesce 语法：
+```
+select coalesce(a,b,c);
+```
+参数说明：如果a==null,则选择b；如果b==null,则选择c；如果a!=null,则选择a；如果a b c 都为null ，则返回为null（没意义）。
+
+以下实例中如果名字为空我们使用总数代替：
+```mysql
+SELECT coalesce(name, '总数'), SUM(singin) as singin_count FROM  employee_tbl GROUP BY name WITH ROLLUP;
+```
+![](MYSQLStudy-1/7.png)
+
+#### 18mysql的链接使用
+使用 MySQL 的 JOIN 在两个或多个表中查询数据，可以在SELECT,UPDATE,DELECT中使用mysql的join联合多表查询
+
+join按照功能可以分为三类
+- INNER JOIN:(内连接或者等值链接)：获取两个表字段匹配关系的记录
+- LEFT JOIN(左连接)：获取左表所有记录，即使右表没有对应匹配记录
+- RIGHT JOIN (右连接)：与LEFT JOIN 相反，用于获取右表所有记录，即使左表没有对应的匹配记录
+
+
+在RUNOOB数据库中有两张表 tcount_tbl 和 runoob_tbl
+创建这个两个表的脚本
+```sql
+/*
+ Navicat MySQL Data Transfer
+
+ Source Server         : 127.0.0.1
+ Source Server Version : 50621
+ Source Host           : localhost
+ Source Database       : RUNOOB
+
+ Target Server Version : 50621
+ File Encoding         : utf-8
+
+ Date: 04/13/2017 14:25:12 PM
+*/
+
+SET NAMES utf8;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+--  Table structure for `runoob_tbl`
+-- ----------------------------
+DROP TABLE IF EXISTS `runoob_tbl`;
+CREATE TABLE `runoob_tbl` (
+  `runoob_id` int(11) NOT NULL AUTO_INCREMENT,
+  `runoob_title` varchar(100) NOT NULL,
+  `runoob_author` varchar(40) NOT NULL,
+  `submission_date` date DEFAULT NULL,
+  PRIMARY KEY (`runoob_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+--  Records of `runoob_tbl`
+-- ----------------------------
+BEGIN;
+INSERT INTO `runoob_tbl` VALUES ('1', '学习 PHP', '菜鸟教程', '2017-04-12'), ('2', '学习 MySQL', '菜鸟教程', '2017-04-12'), ('3', '学习 Java', 'RUNOOB.COM', '2015-05-01'), ('4', '学习 Python', 'RUNOOB.COM', '2016-03-06'), ('5', '学习 C', 'FK', '2017-04-05');
+COMMIT;
+
+-- ----------------------------
+--  Table structure for `tcount_tbl`
+-- ----------------------------
+DROP TABLE IF EXISTS `tcount_tbl`;
+CREATE TABLE `tcount_tbl` (
+  `runoob_author` varchar(255) NOT NULL DEFAULT '',
+  `runoob_count` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+--  Records of `tcount_tbl`
+-- ----------------------------
+BEGIN;
+INSERT INTO `tcount_tbl` VALUES ('菜鸟教程', '10'), ('RUNOOB.COM ', '20'), ('Google', '22');
+COMMIT;
+
+SET FOREIGN_KEY_CHECKS = 1;runoob_tbl
+
+```
+
+查看新建的第一个表
+```sql
+select * from runoob_tbl
+```
+![](MYSQLStudy-1/8.png)
+第二个
+```sql
+select * from tcount_tbl
+```
+![](MYSQLStudy-1/9.png)
+
+使用MySQL的INNER JOIN(也可以省略 INNER 使用 JOIN，效果一样)来连接以上两张表来读取runoob_tbl表中所有runoob_author字段在tcount_tbl表对应的runoob_count字段值：
+
+```sql
+ SELECT a.runoob_id, a.runoob_author, b.runoob_count FROM runoob_tbl a INNER JOIN tcount_tbl b ON a.runoob_author = b.runoob_author;
+```
+![](MYSQLStudy-1/10.png)
+
+相当于
+```sql
+SELECT a.runoob_id, a.runoob_author, b.runoob_count FROM runoob_tbl a, tcount_tbl b WHERE a.runoob_author = b.runoob_author;
+```
+
+
+##### MySQL LEFT JOIN
+MySQL left join 与 join 有所不同。 MySQL LEFT JOIN 会读取左边数据表的全部数据，即便右边表无对应数据。
+```sql
+SELECT a.runoob_id, a.runoob_author, b.runoob_count FROM runoob_tbl a LEFT JOIN tcount_tbl b ON a.runoob_author = b.runoob_author;
+```
+![](MYSQLStudy-1/11.png)
+
+
+##### MYSQL RIGHT JOIN
+MySQL RIGHT JOIN 会读取右边数据表的全部数据，即便左边边表无对应数据。
+```sql
+ SELECT a.runoob_id, a.runoob_author, b.runoob_count FROM runoob_tbl a RIGHT JOIN tcount_tbl b ON a.runoob_author = b.runoob_author;
+```
+![](MYSQLStudy-1/12.png)
+
+##### 使用php
+```sql
+<?php
+$dbhost = '127.0.0.1:3366';  // mysql服务器主机地址
+$dbuser = 'root';            // mysql用户名
+$dbpass = 'root';          // mysql用户名密码
+$conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+if(! $conn )
+{
+  die('连接错误: ' . mysqli_error($conn));
+}
+echo '连接成功<br />';
+
+
+// 设置编码，防止中文乱码
+mysqli_query($conn , "set names utf8");
+ 
+$sql = 'SELECT a.runoob_id, a.runoob_author, b.runoob_count FROM runoob_tbl a INNER JOIN tcount_tbl b ON a.runoob_author = b.runoob_author';
+ 
+mysqli_select_db( $conn, 'RUNOOB' );
+$retval = mysqli_query( $conn, $sql );
+if(! $retval )
+{
+    die('无法读取数据: ' . mysqli_error($conn));
+}
+echo '<h2>菜鸟教程 MySQL JOIN 测试<h2>';
+echo '<table border="1"><tr><td>教程 ID</td><td>作者</td><td>登陆次数</td></tr>';
+while($row = mysqli_fetch_assoc($retval))
+{
+    echo "<tr><td> {$row['runoob_id']}</td> ".
+         "<td>{$row['runoob_author']} </td> ".
+         "<td>{$row['runoob_count']} </td> ".
+         "</tr>";
+}
+echo '</table>';
+mysqli_close($conn);
+?>
+```
+
+
+#### 19. MySQL的null值处理
+我们已经知道 MySQL 使用 SQL SELECT 命令及 WHERE 子句来读取数据表中的数据,但是当提供的查询条件字段为 NULL 时，该命令可能就无法正常工作。为了处理这种情况，MySQL提供了三大运算符:
+- IS NULL:当列的值是NULL,此运算符返回true
+- IS NOT NULL:当列的值不是NULL,此运算符返回true
+- <=>:比较运算符（不同于=运算符），当比较两个值为null的时候返回true
+
+关于 NULL 的条件比较运算是比较特殊的。你不能使用 = NULL 或 != NULL 在列中查找 NULL 值 。
+在 MySQL 中，NULL 值与任何其它值的比较（即使是 NULL）永远返回 false，即 NULL = NULL 返回false 。
+MySQL 中处理 NULL 使用 IS NULL 和 IS NOT NULL 运算符。
+
+创建一个表
+```sql
+CREATE TABLE `runoob_test_tbl` (
+  `runoob_author` varchar(40) NOT NULL,
+  `runoob_count`  INT,
+  PRIMARY KEY (`runoob_author`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+```
+插入值
+```sql
+INSERT INTO runoob_test_tbl (runoob_author, runoob_count) values ('RUNOOB', 20);
+INSERT INTO runoob_test_tbl (runoob_author, runoob_count) values ('菜鸟教程', NULL);
+INSERT INTO runoob_test_tbl (runoob_author, runoob_count) values ('Google', NULL);
+INSERT INTO runoob_test_tbl (runoob_autrunoob_test_tblhor, runoob_count) values ('FK', 20);
+```
+
+查询一下
+```sql
+SELECT * FROM runoob_test_tbl
+```
+![](MYSQLStudy-1/13.png)
+
+这两个SQL语句无效
+```sql
+SELECT * from runoob_test_tbl where runoob_count=null;
+select * from runoob_test_tbl where runoob_count !=null;
+```
+
+查找数据表中 runoob_test_tbl 列是否为 NULL，必须使用 IS NULL 和 IS NOT NULL
+```sql
+SELECT * from runoob_test_tbl where runoob_count is null;
+SELECT * from runoob_test_tbl where runoob_count is not null;
+
+```
+
+##### php控制
+PHP 脚本中你可以在 if...else 语句来处理变量是否为空，并生成相应的条件语句。
+以下实例中 PHP 设置了 $runoob_count 变量，然后使用该变量与数据表中的 runoob_count 字段进行比较：
+```sql
+<?php
+$dbhost = '127.0.0.1:3366';  // mysql服务器主机地址
+$dbuser = 'root';            // mysql用户名
+$dbpass = 'root';          // mysql用户名密码
+$conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+if(! $conn )
+{
+  die('连接错误: ' . mysqli_error($conn));
+}
+echo '连接成功<br />';
+
+
+// 设置编码，防止中文乱码
+mysqli_query($conn , "set names utf8");
+ 
+if( isset($runoob_count ))
+{
+   $sql = "SELECT runoob_author, runoob_count
+           FROM  runoob_test_tbl
+           WHERE runoob_count = $runoob_count";
+}
+else
+{
+   $sql = "SELECT runoob_author, runoob_count
+           FROM  runoob_test_tbl
+           WHERE runoob_count IS NULL";
+}
+mysqli_select_db( $conn, 'RUNOOB' );
+$retval = mysqli_query( $conn, $sql );
+if(! $retval )
+{
+    die('无法读取数据: ' . mysqli_error($conn));
+}
+echo '<h2>菜鸟教程 IS NULL 测试<h2>';
+echo '<table border="1"><tr><td>作者</td><td>登陆次数</td></tr>';
+while($row = mysqli_fetch_assoc($retval))
+{
+    echo "<tr>".
+         "<td>{$row['runoob_author']} </td> ".
+         "<td>{$row['runoob_count']} </td> ".
+         "</tr>";
+}
+echo '</table>';
+mysqli_close($conn);
+?>
+```
+
+#### 20.mysql 正则表达式
+MySQL 同样也支持其他正则表达式的匹配， MySQL中使用 REGEXP 操作符来进行正则表达式匹配。
+
+查找name字段中以'st'为开头的所有数据：
+```sql
+select name from person_tbl where name regexp '^st';
+```
+
+查找name字段中以'ok'为结尾的所有数据：
+```sql
+select name from person_tbl where name regexp 'ok$';
+```
+
+
+#### 21. mysql 事物
+MySQL 事务主要用于处理操作量大，复杂度高的数据。比如说，在人员管理系统中，你删除一个人员，你即需要删除人员的基本资料，也要删除和该人员相关的信息，如信箱，文章等等，这样，这些数据库操作语句就构成一个事务！
+
+- 在mysql中，只有使用了innodb数据库引擎的数据库或表才支持事物
+- 事物处理，可以用来维护数据库的完整性，保证成批的SQL语句要么执行，要么不执行
+- 事物用来管理update，delect，insert等语句
+
+一般来说，事务是必须满足4个条件（ACID）： Atomicity（原子性）、Consistency（稳定性）、Isolation（隔离性）、Durability（可靠性）
+- 事务的原子性：一组事务，要么成功；要么撤回。
+- 稳定性 ：有非法数据（外键约束之类），事务撤回。
+- 隔离性：事务独立运行。一个事务处理后的结果，影响了其他事务，那么其他事务会撤回。事务的100%隔离，需要牺牲速度。
+- 可靠性：软、硬件崩溃后，InnoDB数据表驱动会利用日志文件重构修改。可靠性和高速度不可兼得， innodb_flush_log_at_trx_commit 选项 决定什么时候吧事务保存到日志里。
+- **在 MySQL 命令行的默认设置下，事务都是自动提交的，即执行 SQL 语句后就会马上执行 COMMIT 操作。因此要显示地开启一个事务须使用命令 BEGIN 或 START TRANSACTION，或者执行命令 SET AUTOCOMMIT=0，用来禁止使用当前会话的自动提交。**
+
+##### 事物控制语句
+- BEGIN或START TRANSACTION；显示地开启一个事务；
+- COMMIT；也可以使用COMMIT WORK，不过二者是等价的。COMMIT会提交事务，并使已对数据库进行的所有修改称为永久性的；
+- ROLLBACK；有可以使用ROLLBACK WORK，不过二者是等价的。回滚会结束用户的事务，并撤销正在进行的所有未提交的修改；
+- SAVEPOINT identifier；SAVEPOINT允许在事务中创建一个保存点，一个事务中可以有多个SAVEPOINT；
+- RELEASE SAVEPOINT identifier；删除一个事务的保存点，当没有指定的保存点时，执行该语句会抛出一个异常；
+- ROLLBACK TO identifier；把事务回滚到标记点；
+- SET TRANSACTION；用来设置事务的隔离级别。InnoDB存储引擎提供事务的隔离级别有READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ和SERIALIZABLE。
+
+##### MYSQL 事务处理主要有两种方法：
+- 用 BEGIN, ROLLBACK, COMMIT来实现
+	- BEGIN：开始一个事物
+	- ROOLBACK：事物回滚
+	- COMMIT:事物确认
+
+- 直接用 SET 来改变 MySQL 的自动提交模式:
+	- SET AUTOCOMMIT=0 禁止自动提交
+	- SET AUTOCOMMIT=1 开启自动提交
+
+
+##### php
+```php
+// 设置编码，防止中文乱码
+mysqli_query($conn, "set names utf8");
+mysqli_select_db( $conn, 'RUNOOB' );
+mysqli_query($conn, "SET AUTOCOMMIT=0"); // 设置为不自动提交，因为MYSQL默认立即执行
+mysqli_begin_transaction($conn);            // 开始事务定义
+ 
+if(!mysqli_query($conn, "insert into runoob_transaction_test (id) values(8)"))
+{
+    mysqli_query($conn, "ROLLBACK");     // 判断当执行失败时回滚
+}
+ 
+if(!mysqli_query($conn, "insert into runoob_transaction_test (id) values(9)"))
+{
+    mysqli_query($conn, "ROLLBACK");      // 判断执行失败时回滚
+}
+mysqli_commit($conn);            //执行事务
+mysqli_close($conn);
+?>
+```
+
+#### 22.mysql alter命令
+当我们需要修改数据表名或者修改数据表字段时，就需要使用到MySQL ALTER命令。
+
+新建一个表
+```sql
+create table `testalter_tbl`(i int,c char(1));
+
+```
+
